@@ -1,0 +1,44 @@
+[level]
+tileset = ground.png
+map =   ###############
+        #.............#
+        #.###########.#
+        #.#.........#.#
+        #.#.#######.#.#
+        #.#.#.....#.#.#
+        #.#.#.###.#.#.#
+        #.#.#.#h#.#.#.#
+        #.#.#.#.#.#.#.#
+        #.#.#...#.#.#@1
+        #.#.#####.#.###
+        #.#.......#...#
+        #.#########...#
+        #.............#
+        ###############
+
+[#]
+name = wall
+wall = true
+block = true
+
+[.]
+name = floor
+tile = 0, 3
+
+[1]
+name = floor
+tile = 0, 3
+connect = auto
+level = level.map
+
+[@]
+name = player
+tile = 0, 3
+player = true
+sprite = player.png
+
+[h]
+name = house
+tile = 0, 3
+sprite = house.png
+block = true

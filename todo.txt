@@ -1,0 +1,9 @@
+Different starting player positions
+Create tiles
+go through code TODOs
+move use_level functino to Map class
+
+-- Unnecessary
+Fast walking on meta-key 'shift'
+Moving map
+Movable stuff (boxes)
