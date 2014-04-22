@@ -7,10 +7,15 @@ import spanish
 
 # Dimensions of the map tiles
 MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
-
+# Cache of map tiles
 MAP_CACHE = tiles.TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
-
-mapDir   = 'maps/'
+# Directory of map files
+MAP_DIR = 'maps/'
+# Walking Directions
+NORTH = 0
+SOUTH = 2
+EAST  = 1
+WEST  = 3
 
 class Map(object):
     """ The state of the current map """
@@ -103,7 +108,7 @@ class Level(object):
         """Load the level from specified file."""
 
         parser = ConfigParser.ConfigParser()
-        parser.read(mapDir + mapfilename)
+        parser.read(MAP_DIR + mapfilename)
 	# get(section, option), returns value from 'option = value'
         self.tileset = parser.get("level", "tileset") 
         self.map = parser.get("level", "map").split("\n")
