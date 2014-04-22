@@ -22,7 +22,6 @@ Note that a lot of additional work is needed to turn it into an actual game.
 import pygame
 import pygame.locals as pg
 import gameMap as gmap
-import sprites as spr
 
 GAME_FRAMERATE = 50 # Frames per second
 class Game(object):
@@ -49,7 +48,7 @@ class Game(object):
 
             x, y = self.mapState.player.pos
             self.mapState.player.direction = d
-            if not self.mapState.level.is_blocking(x+spr.DX[d], y+spr.DY[d]):
+            if not self.mapState.level.is_blocking(x+gmap.DX[d], y+gmap.DY[d]):
                 self.mapState.player.animation = self.mapState.player.walk_animation() # moves player in direction d
 
             # Change level?
@@ -113,25 +112,20 @@ class Game(object):
         self.screen.blit(self.mapState.background, (0, 0)) # Blit background on screen
         self.mapState.overlays.draw(self.screen)           # Blit overlays on screen
         pygame.display.flip()                     # Redraw entire display
+
         # The main game loop
         while not self.game_over:
             # Don't clear shadows and overlays, only sprites.
-            self.mapState.sprites.clear(self.screen, self.mapState.background)
-            self.mapState.sprites.update()
+            self.mapState.clearSprites(self.screen)
+
             # If the player's animation is finished, check for keypresses
             if self.mapState.player.animation is None:
                 self.control()
                 self.mapState.player.update()
-            self.mapState.shadows.update()
-            # Don't add shadows to dirty rectangles, as they already fit inside
-            # sprite rectangles.
-            self.mapState.shadows.draw(self.screen)
-            dirty = self.mapState.sprites.draw(self.screen)
-            # Don't add ovelays to dirty rectangles, only the places where
-            # sprites are need to be updated, and those are already dirty.
-            self.mapState.overlays.draw(self.screen)
-            # Update only the dirty areas of the screen
-            pygame.display.update(dirty)
+
+            # Update sprites, shadows, and overlays
+            self.mapState.updateSprites(self.screen, pygame.display)
+
             # Wait for one tick of the game clock
             clock.tick(GAME_FRAMERATE)
             # Process pygame events
@@ -144,5 +138,5 @@ class Game(object):
 
 if __name__ == "__main__":
     pygame.init()
-    pygame.display.set_mode((424, 320)) # Screen Height, Width
+    pygame.display.set_mode((gmap.MAP_TILE_WIDTH*15, gmap.MAP_TILE_HEIGHT*15)) # Screen Width, Height
     Game().main()

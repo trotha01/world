@@ -3,10 +3,6 @@ import pygame.locals as pg
 import gameMap as gmap
 import tiles
 
-# Motion offsets for particular directions
-#     N  E  S   W
-DX = [0, 1, 0, -1]
-DY = [-1, 0, 1, 0]
 
 
 SPRITE_CACHE = tiles.TileCache()
@@ -101,9 +97,9 @@ class Player(Sprite):
         for frame in range(4):
             self.image = self.frames[self.direction][frame]
             yield None
-            self.move(3*DX[self.direction], 2*DY[self.direction])
+            self.move(3*gmap.DX[self.direction], 2*gmap.DY[self.direction])
             yield None
-            self.move(3*DX[self.direction], 2*DY[self.direction])
+            self.move(3*gmap.DX[self.direction], 2*gmap.DY[self.direction])
 
     def update(self, *args):
         """Run the current animation or just stand there if no animation set."""

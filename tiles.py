@@ -3,7 +3,9 @@
 import ConfigParser
 import pygame
 
-TILE_WIDTH = 32
+# Sprite height/width
+TILE_WIDTH  = 32
+TILE_HEIGHT = 16
 imageDir = 'images/'
 
 class TileCache(object):

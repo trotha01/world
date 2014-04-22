@@ -13,9 +13,13 @@ MAP_CACHE = tiles.TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
 MAP_DIR = 'maps/'
 # Walking Directions
 NORTH = 0
-SOUTH = 2
 EAST  = 1
+SOUTH = 2
 WEST  = 3
+# Motion offsets for particular directions
+#     N  E  S   W
+DX = [0, 1, 0, -1] # Moves left and right
+DY = [-1, 0, 1, 0] # Moves up   and down
 
 class Map(object):
     """ The state of the current map """
@@ -73,6 +77,23 @@ class Map(object):
             overlay = pygame.sprite.Sprite(self.overlays)
             overlay.image = image
             overlay.rect  = image.get_rect().move(x*tWidth, y*tHeight - tHeight)
+
+    def clearSprites(self, screen):
+        self.sprites.clear(screen, self.background) # Draw background over sprites
+        self.sprites.update() # Calls update() on each sprite
+
+    def updateSprites(self, screen, display):
+        self.shadows.update()
+        # Don't add shadows to dirty rectangles, as they already fit inside
+	# sprite rectangles.
+	self.shadows.draw(screen) # Blit the shadows
+	dirty = self.sprites.draw(screen) # Blit the sprites
+
+	# Don't add overlays to dirty rectangles, only the places where
+	# sprites are need to be updated, and those are already dirty.
+	self.overlays.draw(screen) # Blit the overlays
+	# Update only the dirty areas of the screen
+	display.update(dirty) # Update dirty portions of display
 
 
 
