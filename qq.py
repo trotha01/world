@@ -2,20 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-This is sample of how you can implement a tile-based game, not unlike
-the RPG games known from consoles, in pygame. It's not a playable game,
-but it can be turned into one. Care has been taken to comment it clearly,
-so that you can use it easily as a starting point for your game.
-
-The program reads a level definition from a "level.map" file, and uses the
-graphics referenced for that file to display a tiled map on the screen and
-let you move an animated player character around it.
-
-Note that a lot of additional work is needed to turn it into an actual game.
-
-@copyright: 2008, 2009 Radomir Dopieralski <qq@sheep.art.pl>
-@license: BSD, see COPYING for details
-
+Some code was taken from:
+    http://qq.readthedocs.org/en/latest/tiles.html
+    @copyright: 2008, 2009 Radomir Dopieralski <qq@sheep.art.pl>
+    @license: BSD, see COPYING for details
 """
 
 
@@ -37,6 +27,12 @@ class Game(object):
         """Handle the controls of the game."""
 
         keys = pygame.key.get_pressed()
+
+        mods = pygame.key.get_mods()
+        if mods & pg.KMOD_LSHIFT:
+            GAME_FRAMERATE = 100 # Frames per second
+        else:
+            GAME_FRAMERATE = 50 # Frames per second
 
         def pressed(key):
             """Check if the specified key is pressed."""
@@ -66,28 +62,55 @@ class Game(object):
         # Play audio?
         if pressed(pg.K_SPACE):
             self.playAudio()
-            self.metaChangeLevel()
+        # Change  Level?
+        self.metaChangeLevel(pressed)
         self.pressed_key = None
 
-    def changeLevel(self, level):
+    def changeLevel(self, level, newPlayerPos=(-1, -1)):
+        # self.mapState.use_level(gmap.Level(level), newPlayerPos)
         self.mapState.use_level(gmap.Level(level))
         self.screen.blit(self.mapState.background, (0, 0)) # Blit background on screen
         self.mapState.overlays.draw(self.screen)           # Blit overlays on screen
         pygame.display.flip()                     # Redraw entire display
 
-    def metaChangeLevel(self):
+    def posParse(self, position):
+        # Convert position string "(x, y)" to a tuple (x, y)
+        item = 0
+        items = []
+        items.append("")
+        for s in position:
+            if s == " ":
+                item += 1
+                items.append("")
+            items[item] += s
+        return (str.strip(items[0]), str.strip(items[1]))
+
+    def metaChangeLevel(self, pressed):
         # Check if player is on a meta-key connecting tile to another level
         for tile in self.mapState.level.metalevelTiles:
             if self.mapState.player._get_pos() == tile:
-                newLevel = self.mapState.level.metalevelTiles[tile]['level']
-                self.changeLevel(newLevel)
+                metaKey = self.mapState.level.metalevelTiles[tile]['metakey']
+                key = getattr(pg, metaKey)
+                if pressed(key):
+                    newLevel = self.mapState.level.metalevelTiles[tile]['level']
+                    if 'nextpos' in self.mapState.level.metalevelTiles[tile]:
+                        newPos   = self.mapState.level.metalevelTiles[tile]['nextpos']
+                        newPos = self.posParse(newPos)
+                    else:
+                        newPos = (-1, -1)
+                    self.changeLevel(newLevel, newPos)
 
     def autoChangeLevel(self):
         # Check if player is on a connecting tile to another level
         for tile in self.mapState.level.autolevelTiles:
             if self.mapState.player._get_pos() == tile:
                 newLevel = self.mapState.level.autolevelTiles[tile]['level']
-                self.changeLevel(newLevel)
+                if 'nextpos' in self.mapState.level.autolevelTiles[tile]:
+                    newPos   = self.mapState.level.autolevelTiles[tile]['nextpos']
+                    newPos = self.posParse(newPos)
+                else:
+                    newPos = (-1, -1)
+                self.changeLevel(newLevel, newPos)
 
     def playAudio(self):
         for tile in self.mapState.level.audioTiles:
@@ -128,6 +151,7 @@ class Game(object):
 
             # Wait for one tick of the game clock
             clock.tick(GAME_FRAMERATE)
+
             # Process pygame events
             for event in pygame.event.get():
                 if event.type == pg.QUIT:
@@ -138,5 +162,7 @@ class Game(object):
 
 if __name__ == "__main__":
     pygame.init()
-    pygame.display.set_mode((gmap.MAP_TILE_WIDTH*15, gmap.MAP_TILE_HEIGHT*15)) # Screen Width, Height
+    screenWidth  = gmap.MAP_TILE_WIDTH*15
+    screenHeight = gmap.MAP_TILE_HEIGHT*15 # Screen Width, Height
+    pygame.display.set_mode((screenWidth, screenHeight)) # Screen Width, Height
     Game().main()

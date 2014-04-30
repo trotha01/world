@@ -28,8 +28,10 @@ tile = 0, 3
 [1]
 name = floor
 tile = 0, 3
-connect = auto
+connect = metakey
+metakey = K_DOWN
 level = level.map
+nextPos = x top
 
 [@]
 name = player

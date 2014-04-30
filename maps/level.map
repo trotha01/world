@@ -2,7 +2,7 @@
 tileset = ground.png
 map =   ####222########
         #......#h...h.#
-        #......#......#
+        #....@.#......#
         #......#......#
         #......#h...h.#
         #......#......#
@@ -12,7 +12,7 @@ map =   ####222########
         3.............#
         #......########
         #.............#
-        #.....@.......#
+        #.............#
         #.............#
         ###############
 
@@ -32,14 +32,18 @@ tile = 2, 3
 [2]
 name = floor
 tile = 0, 3
-connect = auto 
+connect = metakey
+metakey = K_UP
 level = level2.map
+nextpos = x bottom
 
 [3]
 name = floor
 tile = 0, 3
-connect = auto 
+connect = metakey
+metakey = K_LEFT
 level = level3.map
+nextpos = right y
 
 [@]
 name = player
@@ -72,5 +76,6 @@ tile = 0, 3
 sprite = house.png
 block = true
 connect = metakey
-connectdirection = South
+metakey = K_UP
+connectlocation = South
 level = house.map

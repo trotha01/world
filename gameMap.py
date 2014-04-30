@@ -34,7 +34,7 @@ class Map(object):
 
 	self.use_level(self.level)
 
-    def use_level(self, level): # level is Level() Class
+    def use_level(self, level, nextPlayerPos=(-1, -1)): # level is Level() Class
         """Set the map level."""
 
         self.shadows  = pygame.sprite.RenderUpdates() # Sprite Group Subclass
@@ -43,23 +43,37 @@ class Map(object):
         self.level    = level
 
         # Set Player Position
-        """
-        if self.player != None: # If player already exists (i.e., not start of game)
-            playerPos = self.player._get_pos()
-            for pos, tile in level.autolevelTiles.iteritems():
-                if pos[0] == playerPos[0] or pos[1] == playerPos[1]: # Find corresponding tile
-                    print "Make new player with pos"
-                    print pos
-                    sprite = spr.Player(pos)
-                    self.player = sprite
+        if nextPlayerPos != (-1, -1): # If player passed in (i.e., not start of game)
+	    print "unpack: "
+	    print nextPlayerPos[0]
+	    print nextPlayerPos[1]
+	    x, y = nextPlayerPos
+            currentX, currentY = self.player._get_pos()
+	    if x == 'x':
+		nextPlayerPos = (currentX, nextPlayerPos[1])
+	    elif x == 'left':
+		nextPlayerPos = (1, nextPlayerPos[1])
+	    elif x == 'right':
+		nextPlayerPos = (level.width-1, nextPlayerPos[1])
+
+	    if y == 'y':
+		nextPlayerPos = (nextPlayerPos[0], currentY)
+	    elif y == 'top':
+		nextPlayerPos = (nextPlayerPos[0], 1)
+	    elif y == 'bottom':
+		nextPlayerPos = (nextPlayerPos[0], level.height-1)
+	
+	    print "New Pos: "
+	    print nextPlayerPos
+	    sprite = spr.Player(nextPlayerPos)
+            self.player = sprite
             self.sprites.add(sprite)
             self.shadows.add(spr.Shadow(sprite))
-            """
 
         # Populate Game player, sprites, shadows with the level's objects
         for pos, tile in level.items.iteritems(): # pos on map, tile info
-            # if self.player == None and tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
-            if tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
+            if nextPlayerPos == (-1, -1) and tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
+            # if tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
                 sprite = spr.Player(pos) # Player class. Uses "player.png"
                 self.player = sprite
             else:
@@ -123,6 +137,8 @@ class Level(object):
 	     return (x+1, y)
 	elif direction == 'West':
 	     return (x-1, y)
+        else:
+	     return (x, y)
 		
 
     def load_file(self, mapfilename="level.map"):
@@ -150,7 +166,10 @@ class Level(object):
 		if self.is_autoconnector(x, y):
 		    self.autolevelTiles[(x, y)] = self.key[c]
 		if self.is_metaconnector(x, y):
-		    connectTile = self.changeCoords((x, y), self.key[c]['connectdirection'])
+		    if('connectlocation' in self.key[c]):
+			connectTile = self.changeCoords((x, y), self.key[c]['connectlocation'])
+		    else:
+			connectTile = (x, y)
 		    self.metalevelTiles[connectTile] = self.key[c]
 		if self.is_audio(x, y):
 		    speech = self.key[c]['speech']

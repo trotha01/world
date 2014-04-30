@@ -30,6 +30,7 @@ name = floor
 tile = 0, 3
 connect = auto
 level = level.map
+nextPos = left y
 
 [@]
 name = player
