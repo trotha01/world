@@ -32,8 +32,9 @@ tile = 2, 3
 [1]
 name = floor
 tile = 0, 3
-connect = auto
 level = level.map
+connect = metakey
+metakey = K_DOWN
 
 [@]
 name = player

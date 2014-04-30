@@ -28,7 +28,8 @@ tile = 0, 3
 [1]
 name = floor
 tile = 0, 3
-connect = auto
+connect = metakey
+metakey = K_RIGHT
 level = level.map
 nextPos = left y
 

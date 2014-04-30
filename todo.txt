@@ -1,9 +1,12 @@
 Different starting player positions
 Create tiles
 go through code TODOs
-move use_level functino to Map class
+Modulate languages
 
--- Unnecessary
+-- Not essential (but would nice)
 Fast walking on meta-key 'shift'
 Moving map
 Movable stuff (boxes)
+
+Map editor
+Audio editor (creating language dictionary files)
