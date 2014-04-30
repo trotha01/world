@@ -2,8 +2,10 @@ import ConfigParser
 import pygame
 import tiles
 import sprites as spr
+import importlib
 
 import spanish
+import french
 
 # Dimensions of the map tiles
 MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
@@ -24,18 +26,21 @@ DY = [-1, 0, 1, 0] # Moves up   and down
 class Map(object):
     """ The state of the current map """
 
-    def __init__(self, mapfilename="level.map"):
-	self.level       = Level(mapfilename)
+    def __init__(self, language, mapfilename="level.map"):
+        self.language    = language # the language as a string
+        self.levelFile   = mapfilename
+	self.level       = Level(language, mapfilename)
         self.shadows     = pygame.sprite.RenderUpdates() # sprite Group subclass
         self.sprites     = spr.SortedUpdates()           # sprite RenderUpdates subclass
         self.overlays    = pygame.sprite.RenderUpdates() # sprite Group subclass
 	self.background  = None
         self.player      = None
 
-	self.use_level(self.level)
+	self.use_level(self.levelFile)
 
-    def use_level(self, level, nextPlayerPos=(-1, -1)): # level is Level() Class
+    def use_level(self, levelFile, nextPlayerPos=(-1, -1)): # level is Level() Class
         """Set the map level."""
+        level = Level(self.language, levelFile)
 
         self.shadows  = pygame.sprite.RenderUpdates() # Sprite Group Subclass
         self.sprites  = spr.SortedUpdates()           # sprite RenderUpdates subclass
@@ -72,13 +77,14 @@ class Map(object):
 
         # Populate Game player, sprites, shadows with the level's objects
         for pos, tile in level.items.iteritems(): # pos on map, tile info
-            if nextPlayerPos == (-1, -1) and tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
-            # if tile.get("player") in ('true', '1', 'yes', 'on'): # ??? player usually set to 'true'
+            if nextPlayerPos == (-1, -1) and tile.get("player") in ('true', '1', 'yes', 'on'): # player usually set to 'true'
+            # if tile.get("player") in ('true', '1', 'yes', 'on'): # player usually set to 'true'
+                print "Adding player in level-defined position"
                 sprite = spr.Player(pos) # Player class. Uses "player.png"
                 self.player = sprite
             else:
                 tileImage = tile["sprite"]
-                sprite = spr.Sprite(pos, spr.SPRITE_CACHE[tileImage]) # When is SPRITE_CACHE filled?
+                sprite = spr.Sprite(pos, spr.SPRITE_CACHE[tileImage])
             self.sprites.add(sprite)
             self.shadows.add(spr.Shadow(sprite))
 
@@ -114,7 +120,8 @@ class Map(object):
 class Level(object):
     """Load and store the map of the level, together with all the items."""
 
-    def __init__(self, mapfilename="level.map"):
+    def __init__(self, language, mapfilename="level.map"):
+        self.lang    = importlib.import_module(language) # loads module from language string
         self.tileset = ''
         self.map     = []
         self.items   = {} # Sprites (not walls), mapped to by x,y coords
@@ -175,7 +182,7 @@ class Level(object):
 		    speech = self.key[c]['speech']
 		    speechTile = self.changeCoords((x, y), self.key[c]['audiodirection'])
 		    self.audioTiles[speechTile] = self.key[c]
-		    self.audioTiles[speechTile].update(spanish.translate[speech])
+		    self.audioTiles[speechTile].update(self.lang.translate[speech])
 
     def render(self):
         """Draw the level on the surface."""

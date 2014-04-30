@@ -8,7 +8,7 @@ Some code was taken from:
     @license: BSD, see COPYING for details
 """
 
-
+import sys
 import pygame
 import pygame.locals as pg
 import gameMap as gmap
@@ -17,11 +17,11 @@ GAME_FRAMERATE = 50 # Frames per second
 class Game(object):
     """The main game object."""
 
-    def __init__(self):
+    def __init__(self, language):
         self.screen      = pygame.display.get_surface()
         self.pressed_key = None
         self.game_over   = False
-        self.mapState = gmap.Map("level.map")
+        self.mapState = gmap.Map(language, "level.map")
 
     def control(self):
         """Handle the controls of the game."""
@@ -67,8 +67,8 @@ class Game(object):
         self.pressed_key = None
 
     def changeLevel(self, level, newPlayerPos=(-1, -1)):
-        # self.mapState.use_level(gmap.Level(level), newPlayerPos)
-        self.mapState.use_level(gmap.Level(level))
+        # self.mapState.use_level(level, newPlayerPos)
+        self.mapState.use_level(level)
         self.screen.blit(self.mapState.background, (0, 0)) # Blit background on screen
         self.mapState.overlays.draw(self.screen)           # Blit overlays on screen
         pygame.display.flip()                     # Redraw entire display
@@ -159,10 +159,24 @@ class Game(object):
                 elif event.type == pg.KEYDOWN:
                     self.pressed_key = event.key
 
+def use_error():
+        print "Usage: "
+        print sys.argv[0] + " [language]"
+        print
+        print "language can be spanish, ..."
+        sys.exit(1)
 
 if __name__ == "__main__":
+    # Get language to use
+    if len(sys.argv) < 2:
+        use_error()
+    language = sys.argv[1].lower()
+
+    # Intitialize Pygame
     pygame.init()
     screenWidth  = gmap.MAP_TILE_WIDTH*15
     screenHeight = gmap.MAP_TILE_HEIGHT*15 # Screen Width, Height
     pygame.display.set_mode((screenWidth, screenHeight)) # Screen Width, Height
-    Game().main()
+
+    # Initialize and start the game!
+    Game(language).main()
