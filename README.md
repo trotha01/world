@@ -17,3 +17,5 @@ speeds saying the same thing throughout the game.
 This game is meant to be well-documented, making it easy for developers to
 expand the game as they wish. It is also meant to be 'simple' to add a new
 language. Or at least as simple as adding a new language can be.
+
+Note: This is still very much in development.
