@@ -7,9 +7,9 @@ map =   ###############
         #.#.#######.#.#
         #.#.#.....#.#.#
         #.#.#.###.#.#.#
-        #.#.#.#h#.#.#.#
         #.#.#.#.#.#.#.#
-        #.#.#...#.#.#@1
+        #.#.#.#.#.#.#.#
+        #.#.#...#.#.#@h
         #.#.#####.#.###
         #.#.......#...#
         #.#########...#
@@ -25,12 +25,12 @@ block = true
 name = floor
 tile = 0, 3
 
-[1]
+[h]
 name = floor
 tile = 0, 3
 connect = metakey
 metakey = K_RIGHT
-level = level.map
+level = houses.map
 nextPos = left y
 
 [@]
@@ -38,9 +38,3 @@ name = player
 tile = 0, 3
 player = true
 sprite = player.png
-
-[h]
-name = house
-tile = 0, 3
-sprite = house.png
-block = true

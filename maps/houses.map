@@ -1,0 +1,89 @@
+[level]
+tileset = ground.png
+map =   ####222########
+        #..,...#h...h.#
+        #......#......#
+        #,.#...#......#
+        #.##...#h...h.#
+        #....,.#......#
+        #...@..#.,....#
+        #......#hs.sh.#
+        #..,...#......#
+        3.............#
+        #......#...#..#
+        #.#...###..#..#
+        #.##,.........#
+        #.............#
+        #####111#######
+
+[#]
+name = wall
+wall = true
+block = true
+
+[.]
+name = floor
+tile = 0, 3
+
+[,]
+name = leafyfloor
+tile = 2, 3
+
+[1]
+name = floor
+tile = 0, 3
+connect = metakey
+metakey = K_DOWN
+level = level.map
+nextpos = x top
+
+[2]
+name = floor
+tile = 0, 3
+connect = metakey
+metakey = K_UP
+level = level2.map
+nextpos = x bottom
+
+[3]
+name = floor
+tile = 0, 3
+connect = metakey
+metakey = K_LEFT
+level = level3.map
+nextpos = right y
+
+[@]
+name = player
+tile = 0, 3
+player = true
+sprite = player.png
+
+[s]
+name = skeleton
+tile = 0, 3
+sprite = skeleton.png
+block = true
+audio = true
+audioDirection = South
+speech = morning_greeting
+
+[>]
+name = stairs
+tile = 3, 3
+
+[b]
+name = crate
+tile = 0, 3
+sprite = crate.png
+block = true
+
+[h]
+name = house
+tile = 0, 3
+sprite = house.png
+block = true
+connect = metakey
+metakey = K_UP
+connectlocation = South
+level = house.map

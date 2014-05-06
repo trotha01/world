@@ -14,7 +14,7 @@ map =   ###############
         #.............#
         #.............#
         #..........@..#
-        ###########1###
+        ###########h###
 
 [#]
 name = wall
@@ -29,10 +29,10 @@ tile = 0, 3
 name = leafyfloor
 tile = 2, 3
 
-[1]
+[h]
 name = floor
 tile = 0, 3
-level = level.map
+level = houses.map
 connect = metakey
 metakey = K_DOWN
 

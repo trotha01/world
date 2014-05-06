@@ -2,19 +2,19 @@
 tileset = ground.png
 map =   ###############
         #.............#
-        #.>........h..#
+        #.>...........#
         #.............#
         #.............#
         #.............#
         #.............#
         #.............#
         #.............#
-        #.............#
+        #........s....#
         #.............#
         #.............#
         #.............#
         #....@........#
-        ####111########
+        ####hhh########
 
 [#]
 name = wall
@@ -25,12 +25,12 @@ block = true
 name = floor
 tile = 0, 3
 
-[1]
+[h]
 name = floor
 tile = 0, 3
 connect = metakey
 metakey = K_DOWN
-level = level.map
+level = houses.map
 nextPos = x top
 
 [@]
@@ -44,6 +44,9 @@ name = skeleton
 tile = 0, 3
 sprite = skeleton.png
 block = true
+audio = true
+audioDirection = South
+speech = afternoon_greeting
 
 [>]
 name = stairs
@@ -53,10 +56,4 @@ tile = 3, 3
 name = crate
 tile = 0, 3
 sprite = crate.png
-block = true
-
-[h]
-name = house
-tile = 0, 3
-sprite = house.png
 block = true
