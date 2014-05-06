@@ -4,6 +4,8 @@ import pygame
 import tiles
 import sprites as spr
 import importlib
+import sys
+sys.path.append('languages')
 
 # Dimensions of the map tiles
 MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
