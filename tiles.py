@@ -7,6 +7,32 @@ TILE_WIDTH  = 32
 TILE_HEIGHT = 16
 IMAGE_DIR = 'images/'
 
+WALL_TILES = {
+# You can see front of wall
+    'FRONT' : {
+        'MIDDLE'   : (1, 2),
+        'RIGHT'    : (2, 2),
+        'LEFT'     : (0, 2),
+        'ISOLATED' : (3, 2),
+    },
+
+# There is a wall in front, only see top
+    'TOP' : {
+        'MIDDLE'   : (1, 1),
+        'RIGHT'    : (2, 1),
+        'LEFT'     : (0, 1),
+        'ISOLATED' : (3, 1),
+    },
+
+# There is something behind the wall (these are overlays)
+    'OVERLAY' : {
+        'MIDDLE'   : (1, 0),
+        'RIGHT'    : (2, 0),
+        'LEFT'     : (0, 0),
+        'ISOLATED' : (3, 0)
+    }
+}
+
 def load_tile_table(imagefilename, width, height):
     # Called by tilecacheInstance[file][width][height]
     """Load an image and split it into tiles."""

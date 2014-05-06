@@ -153,9 +153,9 @@ class Level(object):
         self.height  = 0
         # Tiles that auto-transport player to new level
         self.autoleveltiles = {}
-        # Tiles that transport player to new level on meta-key (space)
-        self.metaleveltiles = {} 
-        self.audio_tiles   = {}
+        # Tiles that transport player to new level on meta-key press (space)
+        self.metaleveltiles = {}
+        self.audio_tiles    = {}
         self.load_file(mapfilename)
 
     def load_file(self, mapfilename="level.map"):
@@ -198,50 +198,63 @@ class Level(object):
                     self.audio_tiles[speech_tile] = self.key[tile]
                     self.audio_tiles[speech_tile].update(speech)
 
+    def wall_tile(self, map_coords, overlays, map_tiles):
+        """ returns tile (x, y) for a wall """
+
+        map_x, map_y = map_coords
+        wall  = self.is_wall
+
+        def wall_tile_from_set((map_x, map_y), wall_set):
+            """ Returns relevant wall tile, from the set of walls given """
+
+            # If walls on left and right
+            if wall(map_x+1, map_y) and wall(map_x-1, map_y):
+                tile = wall_set['MIDDLE']
+
+            # If wall only on right
+            elif wall(map_x+1, map_y):
+                tile = wall_set['LEFT']
+
+            # If wall only on left
+            elif wall(map_x-1, map_y):
+                tile = wall_set['RIGHT']
+
+            # If no walls on left or right
+            else:
+                tile = wall_set['ISOLATED']
+            return tile
+
+        # Draw different tiles depending on neighbourhood
+        if not wall(map_x, map_y+1): # No wall below
+            tile = wall_tile_from_set(map_coords, tiles.WALL_TILES['FRONT'])
+        else: # else if wall below
+            # (We add 1 to y, cuz this case depends on the walls below)
+            tile = wall_tile_from_set((map_x, map_y+1), tiles.WALL_TILES['TOP'])
+            
+        # Add overlays if the wall may be obscuring something
+        if not wall(map_x, map_y-1): # No wall above
+            over = wall_tile_from_set(map_coords, tiles.WALL_TILES['OVERLAY'])
+            overlays[(map_x, map_y)] = map_tiles[over[0]][over[1]]
+
+        return tile
+
+
     def render(self):
         """Draw the level on the surface."""
-	# Returns image: a Surface class
-	#         overlays: a dictionary (of walls that obscure things)
+	# Returns (image, overlays)
+        #    image: a Surface class
+	#    overlays: a dictionary (of walls that obscure things)
 
         wall  = self.is_wall
-        tiles = MAP_CACHE[self.tileset]
-        surf_pos = (self.width*MAP_TILE_WIDTH, self.height*MAP_TILE_HEIGHT)
-        image = pygame.Surface(surf_pos)
+        map_tiles = MAP_CACHE[self.tileset]
+        surface_pos = (self.width*MAP_TILE_WIDTH, self.height*MAP_TILE_HEIGHT)
+        image = pygame.Surface(surface_pos)
         overlays = {}
+
         for map_y, line in enumerate(self.map):
             for map_x, tile_char in enumerate(line):
                 if wall(map_x, map_y):
-                    # Draw different tiles depending on neighbourhood
-                    if not wall(map_x, map_y+1): # No wall to below
-                        # If Wall left and right
-                        if wall(map_x+1, map_y) and wall(map_x-1, map_y):
-                            tile = 1, 2
-                        elif wall(map_x+1, map_y): # Wall right
-                            tile = 0, 2
-                        elif wall(map_x-1, map_y): # Wall left
-                            tile = 2, 2
-                        else:
-                            tile = 3, 2 # No walls
-                    else:
-                        if wall(map_x+1, map_y+1) and wall(map_x-1, map_y+1):
-                            tile = 1, 1
-                        elif wall(map_x+1, map_y+1):
-                            tile = 0, 1
-                        elif wall(map_x-1, map_y+1):
-                            tile = 2, 1
-                        else:
-                            tile = 3, 1
-                    # Add overlays if the wall may be obscuring something
-                    if not wall(map_x, map_y-1): # No wall above
-                        if wall(map_x+1, map_y) and wall(map_x-1, map_y):
-                            over = 1, 0
-                        elif wall(map_x+1, map_y):
-                            over = 0, 0
-                        elif wall(map_x-1, map_y):
-                            over = 2, 0
-                        else:
-                            over = 3, 0
-                        overlays[(map_x, map_y)] = tiles[over[0]][over[1]]
+                    tile = self.wall_tile((map_x, map_y), overlays, map_tiles)
                 else:
                     try:
                         tile = self.key[tile_char]['tile'].split(',')
@@ -249,7 +262,7 @@ class Level(object):
                     except (ValueError, KeyError):
                         # Default to ground tile
                         tile = 0, 3
-                tile_image = tiles[tile[0]][tile[1]]
+                tile_image = map_tiles[tile[0]][tile[1]]
                 image.blit(tile_image,
                             (map_x*MAP_TILE_WIDTH, map_y*MAP_TILE_HEIGHT))
         return image, overlays
