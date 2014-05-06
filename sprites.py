@@ -1,6 +1,6 @@
+"""Sprite for animated items and base class for Player."""
 import pygame
-import pygame.locals as pg
-import gameMap as gmap
+import gamemap as gmap
 import tiles
 
 
@@ -43,6 +43,7 @@ class Sprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.animation = self.stand_animation()
         self.pos = pos
+        self.depth = 0
 
     def _get_pos(self):
         """Check the current position of the sprite on the map."""

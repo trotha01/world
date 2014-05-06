@@ -11,44 +11,69 @@ Some code was taken from:
 import sys
 import pygame
 import pygame.locals as pg
-import gameMap as gmap
+import gamemap as gmap
 
-GAME_FRAMERATE = 50 # Frames per second
+GAME_FRAMERATE = 70 # Frames per second
+SUPPORTED_LANGUAGES = ["Spanish", "French"]
+
+def parse_position(position):
+    """ Convert position string "(x, y)" to a tuple (x, y) """
+    item = 0
+    items = []
+    items.append("")
+    for substr in position:
+        if substr == " ":
+            item += 1
+            items.append("")
+        items[item] += substr
+    return (str.strip(items[0]), str.strip(items[1]))
+
+
 class Game(object):
     """The main game object."""
 
-    def __init__(self, language):
+    def __init__(self, lang):
         self.screen      = pygame.display.get_surface()
         self.pressed_key = None
         self.game_over   = False
-        self.mapState = gmap.Map(language, "level.map")
+        self.map_state = gmap.Map(lang, "level.map")
 
     def control(self):
         """Handle the controls of the game."""
 
         keys = pygame.key.get_pressed()
 
+        """
         mods = pygame.key.get_mods()
         if mods & pg.KMOD_LSHIFT:
             GAME_FRAMERATE = 100 # Frames per second
         else:
             GAME_FRAMERATE = 50 # Frames per second
+            """
 
         def pressed(key):
             """Check if the specified key is pressed."""
 
             return self.pressed_key == key or keys[key]
 
-        def walk(d):
+        def walk(direction):
             """Start walking in specified direction."""
 
-            x, y = self.mapState.player.pos
-            self.mapState.player.direction = d
-            if not self.mapState.level.is_blocking(x+gmap.DX[d], y+gmap.DY[d]):
-                self.mapState.player.animation = self.mapState.player.walk_animation() # moves player in direction d
+            # Get current player coordinates
+            x_coord, y_coord = self.map_state.player.pos
+            # Set player direction
+            self.map_state.player.direction = direction
+            # Walking animation and actual coord movement
+            walking = self.map_state.player.walk_animation()
+
+            # If not walking into a wall
+            if not self.map_state.level.is_blocking(x_coord+gmap.DX[direction],
+                                                    y_coord+gmap.DY[direction]):
+                # Walk in specified direction
+                self.map_state.player.animation =  walking
 
             # Change level?
-            self.autoChangeLevel()
+            self.auto_change_level()
 
 
         if pressed(pg.K_UP):
@@ -61,68 +86,67 @@ class Game(object):
             walk(gmap.EAST)
         # Play audio?
         if pressed(pg.K_SPACE):
-            self.playAudio()
+            self.play_audio()
         # Change  Level?
-        self.metaChangeLevel(pressed)
+        self.meta_change_level(pressed)
         self.pressed_key = None
 
-    def changeLevel(self, level, newPlayerPos=(-1, -1)):
-        # self.mapState.use_level(level, newPlayerPos)
-        self.mapState.use_level(level)
-        self.screen.blit(self.mapState.background, (0, 0)) # Blit background on screen
-        self.mapState.overlays.draw(self.screen)           # Blit overlays on screen
-        pygame.display.flip()                     # Redraw entire display
+    # def change_level(self, level, new_player_pos=(-1, -1)):
+    def change_level(self, level):
+        """ Change level, and update background and player position """
 
-    def posParse(self, position):
-        # Convert position string "(x, y)" to a tuple (x, y)
-        item = 0
-        items = []
-        items.append("")
-        for s in position:
-            if s == " ":
-                item += 1
-                items.append("")
-            items[item] += s
-        return (str.strip(items[0]), str.strip(items[1]))
+        # self.map_state.use_level(level, new_player_pos)
+        self.map_state.use_level(level)
+        # Blit background and overlays on screen
+        self.screen.blit(self.map_state.background, (0, 0))
+        self.map_state.overlays.draw(self.screen)
+        # Redraw entire display
+        pygame.display.flip()
 
-    def metaChangeLevel(self, pressed):
-        # Check if player is on a meta-key connecting tile to another level
-        for tile in self.mapState.level.metalevelTiles:
-            if self.mapState.player._get_pos() == tile:
-                metaKey = self.mapState.level.metalevelTiles[tile]['metakey']
-                key = getattr(pg, metaKey)
+    def meta_change_level(self, pressed):
+        """ Move player if on a meta-key tile connecting to another level"""
+        level_state = self.map_state.level
+        for tile in level_state.metaleveltiles:
+            if self.map_state.player.pos == tile:
+                # Get the metakey required for the tile
+                metakey = level_state.metaleveltiles[tile]['metakey']
+                key = getattr(pg, metakey)
+                # If player has pressed required key:
                 if pressed(key):
-                    newLevel = self.mapState.level.metalevelTiles[tile]['level']
-                    if 'nextpos' in self.mapState.level.metalevelTiles[tile]:
-                        newPos   = self.mapState.level.metalevelTiles[tile]['nextpos']
-                        newPos = self.posParse(newPos)
+                    new_level = level_state.metaleveltiles[tile]['level']
+                    if 'nextpos' in level_state.metaleveltiles[tile]:
+                        new_pos = level_state.metaleveltiles[tile]['nextpos']
+                        new_pos = parse_position(new_pos)
                     else:
-                        newPos = (-1, -1)
-                    self.changeLevel(newLevel, newPos)
+                        new_pos = (-1, -1)
+                    # self.change_level(level, new_pos)
+                    self.change_level(new_level)
 
-    def autoChangeLevel(self):
-        # Check if player is on a connecting tile to another level
-        for tile in self.mapState.level.autolevelTiles:
-            if self.mapState.player._get_pos() == tile:
-                newLevel = self.mapState.level.autolevelTiles[tile]['level']
-                if 'nextpos' in self.mapState.level.autolevelTiles[tile]:
-                    newPos   = self.mapState.level.autolevelTiles[tile]['nextpos']
-                    newPos = self.posParse(newPos)
+    def auto_change_level(self):
+        """ Check if player is on a connecting tile to another level """
+        level_state = self.map_state.level
+        for tile in level_state.autoleveltiles:
+            if self.map_state.player.pos == tile:
+                new_level = level_state.autoleveltiles[tile]['level']
+                if 'nextpos' in level_state.autoleveltiles[tile]:
+                    new_pos   = level_state.autoleveltiles[tile]['nextpos']
+                    new_pos = parse_position(new_pos)
                 else:
-                    newPos = (-1, -1)
-                self.changeLevel(newLevel, newPos)
+                    new_pos = (-1, -1)
+                self.change_level(new_level)
 
-    def playAudio(self):
-        for tile in self.mapState.level.audioTiles:
-            if self.mapState.player._get_pos() == tile:
-                audioFile = self.mapState.level.audioTiles[tile]['audiofile']
-                start     = self.mapState.level.audioTiles[tile]['start']
-                length    = self.mapState.level.audioTiles[tile]['length']
-                lengthSecs = float(length) * 1000
+    def play_audio(self):
+        """ Play audio if player on audio tile """
+        for tile in self.map_state.level.audio_tiles:
+            if self.map_state.player.pos == tile:
+                audio_file = self.map_state.level.audio_tiles[tile]['audiofile']
+                start     = self.map_state.level.audio_tiles[tile]['start']
+                length    = self.map_state.level.audio_tiles[tile]['length']
+                length_mili_secs = float(length) * 1000
 
-                pygame.mixer.music.load('sound/' + audioFile)
+                pygame.mixer.music.load('sound/' + audio_file)
                 pygame.mixer.music.play(0, float(start))
-                while pygame.mixer.music.get_pos() < lengthSecs:
+                while pygame.mixer.music.get_pos() < length_mili_secs:
                     pygame.time.Clock().tick(10)
                     continue
                 pygame.mixer.music.stop()
@@ -131,23 +155,26 @@ class Game(object):
         """Run the main loop."""
 
         clock = pygame.time.Clock()
+
         # Draw the whole screen initially
-        self.screen.blit(self.mapState.background, (0, 0)) # Blit background on screen
-        self.mapState.overlays.draw(self.screen)           # Blit overlays on screen
-        pygame.display.flip()                     # Redraw entire display
+        # Blit background and overlays on screen
+        self.screen.blit(self.map_state.background, (0, 0))
+        self.map_state.overlays.draw(self.screen)
+        # Redraw entire display
+        pygame.display.flip()
 
         # The main game loop
         while not self.game_over:
             # Don't clear shadows and overlays, only sprites.
-            self.mapState.clearSprites(self.screen)
+            self.map_state.clear_sprites(self.screen)
 
             # If the player's animation is finished, check for keypresses
-            if self.mapState.player.animation is None:
+            if self.map_state.player.animation is None:
                 self.control()
-                self.mapState.player.update()
+                self.map_state.player.update()
 
             # Update sprites, shadows, and overlays
-            self.mapState.updateSprites(self.screen, pygame.display)
+            self.map_state.update_sprites(self.screen, pygame.display)
 
             # Wait for one tick of the game clock
             clock.tick(GAME_FRAMERATE)
@@ -160,23 +187,27 @@ class Game(object):
                     self.pressed_key = event.key
 
 def use_error():
-        print "Usage: "
-        print sys.argv[0] + " [language]"
-        print
-        print "language can be spanish, ..."
-        sys.exit(1)
+    """ Prints error message if this is used incorrectly """
+    print "Usage: "
+    print sys.argv[0] + " [language]"
+    print
+    print "language can be:"
+    print SUPPORTED_LANGUAGES
+    sys.exit(1)
 
 if __name__ == "__main__":
     # Get language to use
     if len(sys.argv) < 2:
         use_error()
-    language = sys.argv[1].lower()
+    LANGUAGE = sys.argv[1].lower()
 
     # Intitialize Pygame
     pygame.init()
-    screenWidth  = gmap.MAP_TILE_WIDTH*15
-    screenHeight = gmap.MAP_TILE_HEIGHT*15 # Screen Width, Height
-    pygame.display.set_mode((screenWidth, screenHeight)) # Screen Width, Height
+
+    # Make screen 15 tiles wide and 15 tiles high
+    SCREEN_WIDTH  = gmap.MAP_TILE_WIDTH*15
+    SCREEN_HEIGHT = gmap.MAP_TILE_HEIGHT*15
+    pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # Initialize and start the game!
-    Game(language).main()
+    Game(LANGUAGE).main()

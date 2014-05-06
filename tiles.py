@@ -1,12 +1,26 @@
-# Changes a picture into tiles to use
+""" Changes a picture into tiles to use """
 
-import ConfigParser
 import pygame
 
 # Sprite height/width
 TILE_WIDTH  = 32
 TILE_HEIGHT = 16
-imageDir = 'images/'
+IMAGE_DIR = 'images/'
+
+def load_tile_table(imagefilename, width, height):
+    # Called by tilecacheInstance[file][width][height]
+    """Load an image and split it into tiles."""
+
+    image = pygame.image.load(IMAGE_DIR + imagefilename).convert()
+    image_width, image_height = image.get_size()
+    tile_table = []
+    for tile_x in range(0, image_width/width):
+        line = []
+        tile_table.append(line)
+        for tile_y in range(0, image_height/height):
+            rect = (tile_x*width, tile_y*height, width, height)
+            line.append(image.subsurface(rect))
+    return tile_table
 
 class TileCache(object):
     """Load the tilesets lazily into global cache"""
@@ -24,23 +38,8 @@ class TileCache(object):
         try:
             return self.cache[key]
         except KeyError:
-            tile_table = self._load_tile_table(imagefilename, self.width,
-                self.height)
+            tile_table = load_tile_table(imagefilename, self.width,
+                                         self.height)
             self.cache[key] = tile_table
             return tile_table
-
-    def _load_tile_table(self, imagefilename, width, height):
-        # Called by tilecacheInstance[file][width][height]
-        """Load an image and split it into tiles."""
-
-        image = pygame.image.load(imageDir + imagefilename).convert()
-        image_width, image_height = image.get_size()
-        tile_table = []
-        for tile_x in range(0, image_width/width):
-            line = []
-            tile_table.append(line)
-            for tile_y in range(0, image_height/height):
-                rect = (tile_x*width, tile_y*height, width, height)
-                line.append(image.subsurface(rect))
-        return tile_table
 

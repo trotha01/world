@@ -39,7 +39,7 @@ map =   ####222########
  - If it is a wall, say so with 'wall = true'
  - If it is something that blocks a character, like a wall or a tree or something, say so with 'block=true'
  - Give the tile location in your image with 'tile=x, y' where x and y are the x and y block coordinates in your tileset image. So 0, 0 is the top left block, and 1, 0 is the block to the right of that.
- - Currently wall tiles coordinates from the image are determined dynamically in gameMap.py. Still trying to figure out a simple way to give the user control over this.
+ - Currently wall tiles coordinates from the image are determined dynamically in gamemap.py. Still trying to figure out a simple way to give the user control over this.
 
 ```txt
 [#]

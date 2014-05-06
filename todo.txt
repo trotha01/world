@@ -1,7 +1,10 @@
 Different starting player positions
 Create tiles
 go through code TODOs
-Modulate languages
+Modular languages integration
+Use a linter
+Run tests on commit (especially on maps)
+Create an exectuable
 
 -- Not essential (but would nice)
 Fast walking on meta-key 'shift'
