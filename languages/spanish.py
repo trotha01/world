@@ -1,4 +1,4 @@
-""" French dictionary with audio clip locations """
+""" Spanish dictionary with audio clip locations """
 TRANSLATE = {
         'street_greeting'    : {'audiofile':"spanishGreetings.ogg",
                                 'start':5.5, 'length':.5,
@@ -7,12 +7,12 @@ TRANSLATE = {
                                 'start':8.5, 'length':2,
                                 'word': "gusto en conocerlo"},
         'morning_greeting'   : {'audiofile':"spanishGreetings.ogg",
-                                'start':21 , 'length':2,
+                                'start':22 , 'length':1.5,
                                 'word': 'buenos dias'  },
         'afternoon_greeting' : {'audiofile':"spanishGreetings.ogg",
                                 'start':28 , 'length':2,
                                 'word': 'buenos tardes'},
         'evening_greeting'   : {'audiofile':"spanishGreetings.ogg",
-                                'start':33 , 'length':2,
+                                'start':34 , 'length':2,
                                 'word': 'buenos noches'},
         }
