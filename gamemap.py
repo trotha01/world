@@ -94,7 +94,7 @@ class Map(object):
             self.shadows.add(spr.Shadow(sprite))
             """
 
-        # Populate Game player, sprites, shadows with the level's objects
+        # Populate player, sprites, shadows with in the level
         for pos, tile in level.items.iteritems(): # pos on map, tile info
             # if nextPlayerPos == (-1, -1) and \
             #    tile.get("player") in ('true', '1', 'yes', 'on'):
@@ -110,6 +110,7 @@ class Map(object):
 
         # Render the level map
         self.background, overlays = self.level.render()
+
         # Add the overlays for the level map
         twidth  = MAP_TILE_WIDTH
         theight = MAP_TILE_HEIGHT
@@ -123,6 +124,7 @@ class Map(object):
         self.sprites.clear(screen, self.background)
         self.sprites.update() # Calls update() on each sprite
 
+    # Faster than clear_sprites
     def update_sprites(self, screen, display):
         """ Update and redraw all the sprites on the screen """
         self.shadows.update()
@@ -136,8 +138,6 @@ class Map(object):
         self.overlays.draw(screen) # Blit the overlays
 	# Update only the dirty areas of the screen
         display.update(dirty) # Update dirty portions of display
-
-
 
 class Level(object):
     """Load and store the map of the level, together with all the items."""
@@ -198,45 +198,45 @@ class Level(object):
                     self.audio_tiles[speech_tile] = self.key[tile]
                     self.audio_tiles[speech_tile].update(speech)
 
-    def wall_tile(self, map_coords, overlays, map_tiles):
-        """ returns tile (x, y) for a wall """
+    def wall_img_coords(self, map_coords, overlays, map_tiles):
+        """ returns (x, y) for a wall from image set """
 
         map_x, map_y = map_coords
         wall  = self.is_wall
 
-        def wall_tile_from_set((map_x, map_y), wall_set):
-            """ Returns relevant wall tile, from the set of walls given """
+        def wall_coords_from_set((map_x, map_y), wall_set):
+            """ Returns relevant wall image coords, from the set of walls given """
 
             # If walls on left and right
             if wall(map_x+1, map_y) and wall(map_x-1, map_y):
-                tile = wall_set['MIDDLE']
+                coords = wall_set['MIDDLE']
 
             # If wall only on right
             elif wall(map_x+1, map_y):
-                tile = wall_set['LEFT']
+                coords = wall_set['LEFT']
 
             # If wall only on left
             elif wall(map_x-1, map_y):
-                tile = wall_set['RIGHT']
+                coords = wall_set['RIGHT']
 
             # If no walls on left or right
             else:
-                tile = wall_set['ISOLATED']
-            return tile
+                coords = wall_set['ISOLATED']
+            return coords
 
         # Draw different tiles depending on neighbourhood
         if not wall(map_x, map_y+1): # No wall below
-            tile = wall_tile_from_set(map_coords, tiles.WALL_TILES['FRONT'])
+            coords = wall_coords_from_set(map_coords, tiles.WALL_TILES['FRONT'])
         else: # else if wall below
             # (We add 1 to y, cuz this case depends on the walls below)
-            tile = wall_tile_from_set((map_x, map_y+1), tiles.WALL_TILES['TOP'])
+            coords = wall_coords_from_set((map_x, map_y+1), tiles.WALL_TILES['TOP'])
             
         # Add overlays if the wall may be obscuring something
         if not wall(map_x, map_y-1): # No wall above
-            over = wall_tile_from_set(map_coords, tiles.WALL_TILES['OVERLAY'])
+            over = wall_coords_from_set(map_coords, tiles.WALL_TILES['OVERLAY'])
             overlays[(map_x, map_y)] = map_tiles[over[0]][over[1]]
 
-        return tile
+        return coords
 
 
     def render(self):
@@ -254,15 +254,16 @@ class Level(object):
         for map_y, line in enumerate(self.map):
             for map_x, tile_char in enumerate(line):
                 if wall(map_x, map_y):
-                    tile = self.wall_tile((map_x, map_y), overlays, map_tiles)
+                    # Gets coords in image to use
+                    img_coords = self.wall_img_coords((map_x, map_y), overlays, map_tiles)
                 else:
                     try:
-                        tile = self.key[tile_char]['tile'].split(',')
-                        tile = int(tile[0]), int(tile[1])
+                        img_coords = self.key[tile_char]['tile'].split(',')
+                        img_coords = int(img_coords[0]), int(img_coords[1])
                     except (ValueError, KeyError):
-                        # Default to ground tile
-                        tile = 0, 3
-                tile_image = map_tiles[tile[0]][tile[1]]
+                        # Default to ground image tile
+                        img_coords = tiles.GROUND_TILE
+                tile_image = map_tiles[img_coords[0]][img_coords[1]]
                 image.blit(tile_image,
                             (map_x*MAP_TILE_WIDTH, map_y*MAP_TILE_HEIGHT))
         return image, overlays

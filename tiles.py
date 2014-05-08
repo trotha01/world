@@ -7,6 +7,8 @@ TILE_WIDTH  = 32
 TILE_HEIGHT = 16
 IMAGE_DIR = 'images/'
 
+GROUND_TILE = 0, 3
+
 WALL_TILES = {
 # You can see front of wall
     'FRONT' : {
