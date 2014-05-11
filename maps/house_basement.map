@@ -29,12 +29,6 @@ tile = 0, 3
 name = leafyfloor
 tile = 2, 3
 
-[1]
-name = floor
-tile = 0, 3
-connect = auto
-level = level.map
-
 [@]
 name = player
 tile = 0, 3
@@ -46,3 +40,4 @@ name = stairs
 tile = 3, 3
 connect = auto
 level = house.map
+connectchar = >

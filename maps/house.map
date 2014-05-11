@@ -47,3 +47,4 @@ name = stairs
 tile = 3, 3
 connect = auto
 level = house_basement.map
+connectchar = >

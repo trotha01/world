@@ -35,6 +35,51 @@ WALL_TILES = {
     }
 }
 
+def wall_img_coords(wall, map_coords, overlays, map_tiles):
+    """ wall       : function that determines if a tile is a wall
+        map_coords : Where the wall will go on the map
+        overlays   : An overlay dictionary to add to
+        map_tiles  : tiles to choose from
+        returns (x, y) for a wall from image set """
+
+    map_x, map_y = map_coords
+    # wall  = self.is_wall
+
+    def wall_coords_from_set((map_x, map_y), wall_set):
+        """ Returns relevant wall image coords, from the set of walls given """
+
+        # If walls on left and right
+        if wall(map_x+1, map_y) and wall(map_x-1, map_y):
+            coords = wall_set['MIDDLE']
+
+        # If wall only on right
+        elif wall(map_x+1, map_y):
+            coords = wall_set['LEFT']
+
+        # If wall only on left
+        elif wall(map_x-1, map_y):
+            coords = wall_set['RIGHT']
+
+        # If no walls on left or right
+        else:
+            coords = wall_set['ISOLATED']
+        return coords
+
+    # Draw different tiles depending on neighbourhood
+    if not wall(map_x, map_y+1): # No wall below
+        coords = wall_coords_from_set(map_coords, WALL_TILES['FRONT'])
+    else: # else if wall below
+        # (We add 1 to y, cuz this case depends on the walls below)
+        coords = wall_coords_from_set((map_x, map_y+1), WALL_TILES['TOP'])
+        
+    # Add overlays if the wall may be obscuring something
+    if not wall(map_x, map_y-1): # No wall above
+        over = wall_coords_from_set(map_coords, WALL_TILES['OVERLAY'])
+        overlays[(map_x, map_y)] = map_tiles[over[0]][over[1]]
+
+    return coords
+
+
 def load_tile_table(imagefilename, width, height):
     # Called by tilecacheInstance[file][width][height]
     """Load an image and split it into tiles."""
@@ -71,3 +116,10 @@ class TileCache(object):
             self.cache[key] = tile_table
             return tile_table
 
+    # Functions not necessary
+    def __setitem__(self, imagefilename):
+        pass
+    def __delitem__(self, imagefilename):
+        pass
+    def __len__(self, imagefilename):
+        pass

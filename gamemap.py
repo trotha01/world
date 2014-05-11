@@ -56,7 +56,34 @@ class Map(object):
     # def use_level(self, level_file, nextPlayerPos=(-1, -1)):
     def use_level(self, level_file):
         """Set the map level."""
-        level = Level(self.language, level_file)
+        level = Level(self.language, level_file) #TODO: rename to new_level
+
+        # Figure out where player goes on the level (if changing levels)
+        new_pos = None
+        old_dir = None
+        connects_by = None # Auto connecting tile, or meta-key
+        if self.player is not None:
+            old_dir = self.player.direction
+            current_pos = self.player.pos
+            # Which char to put player on in next level
+            connect_char = self.level.get_tile(current_pos[0], current_pos[1]).get('connectchar')
+            connects_by = self.level.get_tile(current_pos[0], current_pos[1]).get('connect')
+
+            # Get all tiles with that char
+            if connect_char is not None:
+                coords = level.key[connect_char]['locations']
+                if len(coords) == 1:
+                    new_pos = coords[0]
+                else:
+                    coord1 = coords[0]
+                    coord2 = coords[1]
+                    # If x's are the same (all vertical)
+                    if coord1[0] == coord2[0]:
+                        # Use y from the old position
+                        new_pos = (coord1[0], current_pos[1])
+                    else: # y's are the same (all horizontal)
+                        # Use x from the old position
+                        new_pos = (current_pos[0], coord1[1])
 
         # Initialize sprites, shadows and overlays as their respective classes
         self.shadows  = pygame.sprite.RenderUpdates()
@@ -64,49 +91,31 @@ class Map(object):
         self.overlays = pygame.sprite.RenderUpdates()
         self.level    = level
 
-        # Set Player position if position was passed to method
-        """
-        if nextPlayerPos != (-1, -1):
-            print "unpack: "
-            print nextPlayerPos[0]
-            print nextPlayerPos[1]
-            x, y = nextPlayerPos
-            currentX, currentY = self.player._get_pos()
-            if x == 'x':
-                nextPlayerPos = (currentX, nextPlayerPos[1])
-            elif x == 'left':
-                nextPlayerPos = (1, nextPlayerPos[1])
-            elif x == 'right':
-                nextPlayerPos = (level.width-1, nextPlayerPos[1])
-
-            if y == 'y':
-                nextPlayerPos = (nextPlayerPos[0], currentY)
-            elif y == 'top':
-                nextPlayerPos = (nextPlayerPos[0], 1)
-            elif y == 'bottom':
-                nextPlayerPos = (nextPlayerPos[0], level.height-1)
-
-            print "New Pos: "
-            print nextPlayerPos
-            sprite = spr.Player(nextPlayerPos)
-            self.player = sprite
-            self.sprites.add(sprite)
-            self.shadows.add(spr.Shadow(sprite))
-            """
-
         # Populate player, sprites, shadows with in the level
         for pos, tile in level.items.iteritems(): # pos on map, tile info
-            # if nextPlayerPos == (-1, -1) and \
-            #    tile.get("player") in ('true', '1', 'yes', 'on'):
             if tile.get("player") in ('true', '1', 'yes', 'on'):
-                print "Adding player in level-defined position"
-                sprite = spr.Player(pos) # Player class. Uses "player.png"
+                if new_pos is not None:
+                    sprite = spr.Player(new_pos) # Player class. Uses "player.png"
+                    sprite.direction = old_dir
+                else:
+                    sprite = spr.Player(pos) # Player class. Uses "player.png"
                 self.player = sprite
             else:
                 tile_image = tile["sprite"]
                 sprite = spr.Sprite(pos, spr.SPRITE_CACHE[tile_image])
             self.sprites.add(sprite)
             self.shadows.add(spr.Shadow(sprite))
+
+        # If autoconnects (transports player) move off transporting tile
+        if connects_by == 'auto':
+            # Get current player coordinates
+            x_coord, y_coord = self.player.pos
+            walking = self.player.walk_animation()
+            # If not walking into a wall
+            if not self.level.is_blocking(x_coord+DX[old_dir],
+                                          y_coord+DY[old_dir]):
+                # Walk in specified direction
+                self.player.animation =  walking
 
         # Render the level map
         self.background, overlays = self.level.render()
@@ -173,12 +182,14 @@ class Level(object):
                 # desc = map block info (name, tile, isplayer, doesblock)
                 desc = dict(parser.items(section))
                 self.key[section] = desc
+                self.key[section]['locations'] = [] # Coordinates that have this key
 
-	# Create item(sprite) tile list, connector tile lists, and audio tile list
+        # Create item(sprite) tile list, connector tile lists, and audio tile list
         self.width = len(self.map[0])
         self.height = len(self.map)
         for y, line in enumerate(self.map):
             for x, tile in enumerate(line):
+                self.key[tile]['locations'].append((x, y))
                 if not self.is_wall(x, y) and 'sprite' in self.key[tile]:
                     self.items[(x, y)] = self.key[tile]
                 if self.is_autoconnector(x, y):
@@ -198,47 +209,6 @@ class Level(object):
                     self.audio_tiles[speech_tile] = self.key[tile]
                     self.audio_tiles[speech_tile].update(speech)
 
-    def wall_img_coords(self, map_coords, overlays, map_tiles):
-        """ returns (x, y) for a wall from image set """
-
-        map_x, map_y = map_coords
-        wall  = self.is_wall
-
-        def wall_coords_from_set((map_x, map_y), wall_set):
-            """ Returns relevant wall image coords, from the set of walls given """
-
-            # If walls on left and right
-            if wall(map_x+1, map_y) and wall(map_x-1, map_y):
-                coords = wall_set['MIDDLE']
-
-            # If wall only on right
-            elif wall(map_x+1, map_y):
-                coords = wall_set['LEFT']
-
-            # If wall only on left
-            elif wall(map_x-1, map_y):
-                coords = wall_set['RIGHT']
-
-            # If no walls on left or right
-            else:
-                coords = wall_set['ISOLATED']
-            return coords
-
-        # Draw different tiles depending on neighbourhood
-        if not wall(map_x, map_y+1): # No wall below
-            coords = wall_coords_from_set(map_coords, tiles.WALL_TILES['FRONT'])
-        else: # else if wall below
-            # (We add 1 to y, cuz this case depends on the walls below)
-            coords = wall_coords_from_set((map_x, map_y+1), tiles.WALL_TILES['TOP'])
-            
-        # Add overlays if the wall may be obscuring something
-        if not wall(map_x, map_y-1): # No wall above
-            over = wall_coords_from_set(map_coords, tiles.WALL_TILES['OVERLAY'])
-            overlays[(map_x, map_y)] = map_tiles[over[0]][over[1]]
-
-        return coords
-
-
     def render(self):
         """Draw the level on the surface."""
 	# Returns (image, overlays)
@@ -253,9 +223,9 @@ class Level(object):
 
         for map_y, line in enumerate(self.map):
             for map_x, tile_char in enumerate(line):
+                # Gets coords in image to use
                 if wall(map_x, map_y):
-                    # Gets coords in image to use
-                    img_coords = self.wall_img_coords((map_x, map_y), overlays, map_tiles)
+                    img_coords = tiles.wall_img_coords(wall, (map_x, map_y), overlays, map_tiles)
                 else:
                     try:
                         img_coords = self.key[tile_char]['tile'].split(',')

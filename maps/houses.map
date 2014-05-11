@@ -14,7 +14,7 @@ map =   ####222########
         #.#...###..#..#
         #.##,.........#
         #.............#
-        #####111#######
+        ####111########
 
 [#]
 name = wall
@@ -35,7 +35,7 @@ tile = 0, 3
 connect = metakey
 metakey = K_DOWN
 level = level.map
-nextpos = x top
+connectchar = h
 
 [2]
 name = floor
@@ -43,7 +43,7 @@ tile = 0, 3
 connect = metakey
 metakey = K_UP
 level = level2.map
-nextpos = x bottom
+connectchar = h
 
 [3]
 name = floor
@@ -51,7 +51,7 @@ tile = 0, 3
 connect = metakey
 metakey = K_LEFT
 level = level3.map
-nextpos = right y
+connectchar = h
 
 [@]
 name = player

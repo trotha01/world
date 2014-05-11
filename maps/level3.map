@@ -31,7 +31,7 @@ tile = 0, 3
 connect = metakey
 metakey = K_RIGHT
 level = houses.map
-nextPos = left y
+connectchar = 3
 
 [@]
 name = player

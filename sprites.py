@@ -87,7 +87,7 @@ class Player(Sprite):
     def __init__(self, pos=(1, 1)):
         self.frames = SPRITE_CACHE["player.png"]
         Sprite.__init__(self, pos)
-        self.direction = 2
+        self.direction = gmap.SOUTH
         self.animation = None
         self.image = self.frames[self.direction][0]
 
