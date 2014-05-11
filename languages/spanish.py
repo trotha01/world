@@ -7,7 +7,7 @@ TRANSLATE = {
                                 'start':8.5, 'length':2,
                                 'word': "gusto en conocerlo"},
         'morning_greeting'   : {'audiofile':"spanishGreetings.ogg",
-                                'start':22 , 'length':1.5,
+                                'start':22 , 'length':1.7,
                                 'word': 'buenos dias'  },
         'afternoon_greeting' : {'audiofile':"spanishGreetings.ogg",
                                 'start':28 , 'length':2,
