@@ -1,8 +1,5 @@
-Different starting player positions
 Create tiles
 go through code TODOs
-Modular languages integration
-Use a linter
 Run tests on commit (especially on maps)
 Create an exectuable
 
