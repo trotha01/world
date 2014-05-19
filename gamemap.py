@@ -54,51 +54,54 @@ class Map(object):
         self.use_level(mapfilename)
 
     # def use_level(self, level_file, nextPlayerPos=(-1, -1)):
-    def use_level(self, level_file):
+    def use_level(self, level_file, old_connect_tile=None):
         """Set the map level."""
-        level = Level(self.language, level_file) #TODO: rename to new_level
+        new_level = Level(self.language, level_file) #TODO: rename to new_level
+
+        new_pos     = None
+        old_pos     = None
+        old_dir     = None # Direction player is facing
+        connects_by = None # Auto connecting tile, or meta-key
 
         # Figure out where player goes on the level (if changing levels)
-        new_pos = None
-        old_dir = None
-        connects_by = None # Auto connecting tile, or meta-key
         if self.player is not None:
+            old_pos = self.player.pos
             old_dir = self.player.direction
-            current_pos = self.player.pos
             # Which char to put player on in next level
-            connect_char = self.level.get_tile(current_pos[0], current_pos[1]).get('connectchar')
-            connects_by = self.level.get_tile(current_pos[0], current_pos[1]).get('connect')
+            connect_char = old_connect_tile.get('connectchar')
+            connects_by  = old_connect_tile.get('connect')
 
             # Get all tiles with that char
             if connect_char is not None:
-                coords = level.key[connect_char]['locations']
+                coords = new_level.key[connect_char]['locations']
                 if len(coords) == 1:
                     new_pos = coords[0]
-                else:
+                    print new_pos
+                else: #TODO: sort matching coords
                     coord1 = coords[0]
                     coord2 = coords[1]
                     # If x's are the same (all vertical)
                     if coord1[0] == coord2[0]:
                         # Use y from the old position
-                        new_pos = (coord1[0], current_pos[1])
+                        new_pos = (coord1[0], old_pos[1])
                     else: # y's are the same (all horizontal)
                         # Use x from the old position
-                        new_pos = (current_pos[0], coord1[1])
+                        new_pos = (old_pos[0], coord1[1])
 
         # Initialize sprites, shadows and overlays as their respective classes
         self.shadows  = pygame.sprite.RenderUpdates()
         self.sprites  = spr.SortedUpdates()
         self.overlays = pygame.sprite.RenderUpdates()
-        self.level    = level
+        self.level    = new_level
 
-        # Populate player, sprites, shadows with in the level
-        for pos, tile in level.items.iteritems(): # pos on map, tile info
+        # Populate player, sprites, shadows within the level
+        for pos, tile in new_level.items.iteritems(): # pos on map, tile info
             if tile.get("player") in ('true', '1', 'yes', 'on'):
                 if new_pos is not None:
-                    sprite = spr.Player(new_pos) # Player class. Uses "player.png"
+                    sprite = spr.Player(new_pos)
                     sprite.direction = old_dir
                 else:
-                    sprite = spr.Player(pos) # Player class. Uses "player.png"
+                    sprite = spr.Player(pos)
                 self.player = sprite
             else:
                 tile_image = tile["sprite"]
@@ -115,7 +118,7 @@ class Map(object):
             if not self.level.is_blocking(x_coord+DX[old_dir],
                                           y_coord+DY[old_dir]):
                 # Walk in specified direction
-                self.player.animation =  walking
+                self.player.animation = walking
 
         # Render the level map
         self.background, overlays = self.level.render()
@@ -124,7 +127,7 @@ class Map(object):
         twidth  = MAP_TILE_WIDTH
         theight = MAP_TILE_HEIGHT
         for (x, y), image in overlays.iteritems():
-            overlay = pygame.sprite.Sprite(self.overlays)
+            overlay       = pygame.sprite.Sprite(self.overlays)
             overlay.image = image
             overlay.rect  = image.get_rect().move(x*twidth, y*theight - theight)
 
@@ -187,20 +190,27 @@ class Level(object):
         # Create item(sprite) tile list, connector tile lists, and audio tile list
         self.width = len(self.map[0])
         self.height = len(self.map)
+
         for y, line in enumerate(self.map):
             for x, tile in enumerate(line):
+                # List of coords w/ same key
                 self.key[tile]['locations'].append((x, y))
+                # Store sprites in 'items' list
                 if not self.is_wall(x, y) and 'sprite' in self.key[tile]:
                     self.items[(x, y)] = self.key[tile]
+                # Store autoconnector tiles in a list
                 if self.is_autoconnector(x, y):
                     self.autoleveltiles[(x, y)] = self.key[tile]
+                # Store metaconnector tiles in a list
                 if self.is_metaconnector(x, y):
+                    # Check if person connects to the side of the tile
                     if('connectlocation' in self.key[tile]):
                         connect_pos = self.key[tile]['connectlocation']
                         connect_tile = change_coords((x, y), connect_pos)
                     else:
                         connect_tile = (x, y)
                     self.metaleveltiles[connect_tile] = self.key[tile]
+                # Create audio-tile list
                 if self.is_audio(x, y):
                     speech = self.key[tile]['speech']
                     audio_dir = self.key[tile]['audiodirection']

@@ -15,6 +15,7 @@ import gamemap as gmap
 
 GAME_FRAMERATE = 70 # Frames per second
 SUPPORTED_LANGUAGES = ["Spanish", "French"]
+INITIAL_MAP = "house.map"
 
 def parse_position(position):
     """ Convert position string "(x, y)" to a tuple (x, y) """
@@ -32,11 +33,15 @@ def parse_position(position):
 class Game(object):
     """The main game object."""
 
-    def __init__(self, lang):
+    def __init__(self, lang, screen_width, screen_height):
+        # Intitialize Pygame
+        pygame.init()
+        pygame.display.set_mode((screen_width, screen_height))
+
         self.screen      = pygame.display.get_surface()
         self.pressed_key = None
         self.game_over   = False
-        self.map_state = gmap.Map(lang, "level.map")
+        self.map_state   = gmap.Map(lang, INITIAL_MAP)
 
     def control(self):
         """Handle the controls of the game."""
@@ -92,11 +97,11 @@ class Game(object):
         self.pressed_key = None
 
     # def change_level(self, level, new_player_pos=(-1, -1)):
-    def change_level(self, level):
+    def change_level(self, level, from_tile=None):
         """ Change level, and update background and player position """
 
         # self.map_state.use_level(level, new_player_pos)
-        self.map_state.use_level(level)
+        self.map_state.use_level(level, from_tile)
         # Blit background and overlays on screen
         self.screen.blit(self.map_state.background, (0, 0))
         self.map_state.overlays.draw(self.screen)
@@ -108,32 +113,23 @@ class Game(object):
         level_state = self.map_state.level
         for tile in level_state.metaleveltiles:
             if self.map_state.player.pos == tile:
+                meta_tile = level_state.metaleveltiles[tile]
                 # Get the metakey required for the tile
-                metakey = level_state.metaleveltiles[tile]['metakey']
+                metakey = meta_tile['metakey']
                 key = getattr(pg, metakey)
                 # If player has pressed required key:
                 if pressed(key):
-                    new_level = level_state.metaleveltiles[tile]['level']
-                    if 'nextpos' in level_state.metaleveltiles[tile]:
-                        new_pos = level_state.metaleveltiles[tile]['nextpos']
-                        new_pos = parse_position(new_pos)
-                    else:
-                        new_pos = (-1, -1)
-                    # self.change_level(level, new_pos)
-                    self.change_level(new_level)
+                    new_level = meta_tile['level']
+                    self.change_level(new_level, meta_tile)
 
     def auto_change_level(self):
         """ Check if player is on a connecting tile to another level """
         level_state = self.map_state.level
         for tile in level_state.autoleveltiles:
             if self.map_state.player.pos == tile:
-                new_level = level_state.autoleveltiles[tile]['level']
-                if 'nextpos' in level_state.autoleveltiles[tile]:
-                    new_pos   = level_state.autoleveltiles[tile]['nextpos']
-                    new_pos = parse_position(new_pos)
-                else:
-                    new_pos = (-1, -1)
-                self.change_level(new_level)
+                auto_tile = level_state.autoleveltiles[tile]
+                new_level = auto_tile['level']
+                self.change_level(new_level, auto_tile)
 
     def play_audio(self):
         """ Play audio if player on audio tile """
@@ -201,13 +197,9 @@ if __name__ == "__main__":
         use_error()
     LANGUAGE = sys.argv[1].lower()
 
-    # Intitialize Pygame
-    pygame.init()
-
     # Make screen 15 tiles wide and 15 tiles high
     SCREEN_WIDTH  = gmap.MAP_TILE_WIDTH*15
     SCREEN_HEIGHT = gmap.MAP_TILE_HEIGHT*15
-    pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # Initialize and start the game!
-    Game(LANGUAGE).main()
+    Game(LANGUAGE, SCREEN_WIDTH, SCREEN_HEIGHT).main()
