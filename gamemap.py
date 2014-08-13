@@ -1,11 +1,14 @@
 """ The state of the current map """
 import ConfigParser
 import pygame
+import pygame.locals as pg
 import tiles
 import sprites as spr
 import importlib
 import sys
 sys.path.append('languages')
+
+DEFAULT_MAP = "level.map"
 
 # Dimensions of the map tiles
 MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
@@ -15,9 +18,9 @@ MAP_CACHE = tiles.TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
 MAP_DIR = 'maps/'
 # Walking Directions
 NORTH = 0
-EAST  = 1
+EAST = 1
 SOUTH = 2
-WEST  = 3
+WEST = 3
 # Motion offsets for particular directions
 #     N  E  S   W
 DX = [0, 1, 0, -1] # Moves left and right
@@ -36,20 +39,20 @@ def change_coords(coords, direction):
         return (x-1, y)
     else:
         return (x, y)
-            
+
 class Map(object):
     """ The state of the current map """
 
-    def __init__(self, language, mapfilename="level.map"):
-        self.language    = language # the language as a string
-        self.level       = Level(language, mapfilename)
+    def __init__(self, language, mapfilename=DEFAULT_MAP):
+        self.language = language # the language as a string
+        self.level = Level(language, mapfilename)
 
         # Initialize sprites, shadows and overlays as their respective classes
-        self.shadows     = pygame.sprite.RenderUpdates()
-        self.sprites     = spr.SortedUpdates()
-        self.overlays    = pygame.sprite.RenderUpdates()
-        self.background  = None
-        self.player      = None
+        self.shadows = pygame.sprite.RenderUpdates()
+        self.sprites = spr.SortedUpdates()
+        self.overlays = pygame.sprite.RenderUpdates()
+        self.background = None
+        self.player = None
 
         self.use_level(mapfilename)
 
@@ -58,9 +61,9 @@ class Map(object):
         """Set the map level."""
         new_level = Level(self.language, level_file) #TODO: rename to new_level
 
-        new_pos     = None
-        old_pos     = None
-        old_dir     = None # Direction player is facing
+        new_pos = None
+        old_pos = None
+        old_dir = None # Direction player is facing
         connects_by = None # Auto connecting tile, or meta-key
 
         # Figure out where player goes on the level (if changing levels)
@@ -69,14 +72,13 @@ class Map(object):
             old_dir = self.player.direction
             # Which char to put player on in next level
             connect_char = old_connect_tile.get('connectchar')
-            connects_by  = old_connect_tile.get('connect')
+            connects_by = old_connect_tile.get('connect')
 
             # Get all tiles with that char
             if connect_char is not None:
                 coords = new_level.key[connect_char]['locations']
                 if len(coords) == 1:
                     new_pos = coords[0]
-                    print new_pos
                 else: #TODO: sort matching coords
                     coord1 = coords[0]
                     coord2 = coords[1]
@@ -89,10 +91,10 @@ class Map(object):
                         new_pos = (old_pos[0], coord1[1])
 
         # Initialize sprites, shadows and overlays as their respective classes
-        self.shadows  = pygame.sprite.RenderUpdates()
-        self.sprites  = spr.SortedUpdates()
+        self.shadows = pygame.sprite.RenderUpdates()
+        self.sprites = spr.SortedUpdates()
         self.overlays = pygame.sprite.RenderUpdates()
-        self.level    = new_level
+        self.level = new_level
 
         # Populate player, sprites, shadows within the level
         for pos, tile in new_level.items.iteritems(): # pos on map, tile info
@@ -294,4 +296,32 @@ class Level(object):
         """Is this an audio tile?"""
         return self.get_bool(tile_x, tile_y, 'audio')
 
+def use_error():
+    """ Prints error message if tool is used incorrectly """
+    print "Usage: "
+    print sys.argv[0] + " [map]"
 
+if __name__ == "__main__":
+    if len(sys.argv) < 1:
+        use_error()
+
+    MAP = sys.argv[1]
+
+    SCREEN_WIDTH  = MAP_TILE_WIDTH*15
+    SCREEN_HEIGHT = MAP_TILE_HEIGHT*15
+    LANGUAGE      = "spanish"
+
+    pygame.init()
+    pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    SCREEN = pygame.display.get_surface()
+    MAP_STATE = Map(LANGUAGE, MAP)
+
+    while True:
+        SCREEN.blit(MAP_STATE.background, (0, 0))
+        MAP_STATE.overlays.draw(SCREEN)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pg.QUIT:
+                sys.exit()

@@ -4,7 +4,7 @@ map =   ####222########
         #..,...#h...h.#
         #......#......#
         #,.#...#......#
-        #.##...#h...h.#
+        #.##...#H...h.#
         #....,.#......#
         #...@..#.,....#
         #......#hs.sh.#
@@ -14,7 +14,7 @@ map =   ####222########
         #.#...###..#..#
         #.##,.........#
         #.............#
-        ####111########
+        ###############
 
 [#]
 name = wall
@@ -30,7 +30,7 @@ name = leafyfloor
 tile = 2, 3
 
 [1]
-name = floor
+name = Level1_connect
 tile = 0, 3
 connect = metakey
 metakey = K_DOWN
@@ -38,7 +38,7 @@ level = level.map
 connectchar = h
 
 [2]
-name = floor
+name = Level2_connect
 tile = 0, 3
 connect = metakey
 metakey = K_UP
@@ -46,7 +46,7 @@ level = level2.map
 connectchar = h
 
 [3]
-name = floor
+name = Level3_connect
 tile = 0, 3
 connect = metakey
 metakey = K_LEFT
@@ -78,12 +78,20 @@ tile = 0, 3
 sprite = crate.png
 block = true
 
+[H]
+name = main_house
+tile = 0, 3
+sprite = house.png
+block = true
+level = house.map
+connect = metakey
+metakey = K_UP
+connectlocation = South
+connectchar = 1
+
+
 [h]
 name = house
 tile = 0, 3
 sprite = house.png
 block = true
-connect = metakey
-metakey = K_UP
-connectlocation = South
-level = house.map

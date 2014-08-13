@@ -25,12 +25,12 @@ block = true
 name = floor
 tile = 0, 3
 
-[h]
+[1]
 name = floor
 tile = 0, 3
 connect = metakey
 metakey = K_DOWN
-level = houses.map
+level = level.map
 connectchar = 2
 
 [@]

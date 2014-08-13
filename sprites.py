@@ -91,7 +91,7 @@ class Player(Sprite):
         self.animation = None
         self.image = self.frames[self.direction][0]
 
-    def walk_animation(self):
+    def walk_animation(self): #TODO: change name to 'walk'
         """Animation for the player walking."""
 
         # This animation is hardcoded for 4 frames and 16x24 map tiles

@@ -17,6 +17,7 @@ GAME_FRAMERATE = 70 # Frames per second
 SUPPORTED_LANGUAGES = ["Spanish", "French"]
 INITIAL_MAP = "house.map"
 
+# TODO: remove function ?
 def parse_position(position):
     """ Convert position string "(x, y)" to a tuple (x, y) """
     item = 0
@@ -33,15 +34,15 @@ def parse_position(position):
 class Game(object):
     """The main game object."""
 
-    def __init__(self, lang, screen_width, screen_height):
+    def __init__(self, lang, initial_map, screen_width, screen_height):
         # Intitialize Pygame
         pygame.init()
         pygame.display.set_mode((screen_width, screen_height))
 
-        self.screen      = pygame.display.get_surface()
+        self.screen = pygame.display.get_surface()
         self.pressed_key = None
-        self.game_over   = False
-        self.map_state   = gmap.Map(lang, INITIAL_MAP)
+        self.game_over = False
+        self.map_state = gmap.Map(lang, initial_map)
 
     def control(self):
         """Handle the controls of the game."""
@@ -68,19 +69,21 @@ class Game(object):
             x_coord, y_coord = self.map_state.player.pos
             # Set player direction
             self.map_state.player.direction = direction
+
             # Walking animation and actual coord movement
+            # TODO: move under "if not"
             walking = self.map_state.player.walk_animation()
 
             # If not walking into a wall
             if not self.map_state.level.is_blocking(x_coord+gmap.DX[direction],
                                                     y_coord+gmap.DY[direction]):
                 # Walk in specified direction
-                self.map_state.player.animation =  walking
+                self.map_state.player.animation = walking
 
             # Change level?
             self.auto_change_level()
 
-
+        # TODO: make case statement?
         if pressed(pg.K_UP):
             walk(gmap.NORTH)
         elif pressed(pg.K_DOWN):
@@ -89,10 +92,10 @@ class Game(object):
             walk(gmap.WEST)
         elif pressed(pg.K_RIGHT):
             walk(gmap.EAST)
-        # Play audio?
+        # Possibly play audio
         if pressed(pg.K_SPACE):
             self.play_audio()
-        # Change  Level?
+        # Possibly change level
         self.meta_change_level(pressed)
         self.pressed_key = None
 
@@ -202,4 +205,4 @@ if __name__ == "__main__":
     SCREEN_HEIGHT = gmap.MAP_TILE_HEIGHT*15
 
     # Initialize and start the game!
-    Game(LANGUAGE, SCREEN_WIDTH, SCREEN_HEIGHT).main()
+    Game(LANGUAGE, INITIAL_MAP, SCREEN_WIDTH, SCREEN_HEIGHT).main()

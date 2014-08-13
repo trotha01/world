@@ -1,7 +1,9 @@
 Create tiles
-go through code TODOs
-Run tests on commit (especially on maps)
+Go through code TODOs
+Pre-commit git hook tests (especially on maps)
 Create an exectuable
+Move Translate menu from sound/ to languages/
+Move language choice to a gui
 
 -- Not essential (but would nice)
 Fast walking on meta-key 'shift'

@@ -3,18 +3,18 @@ tileset = dungeon.png
 map =   ###############
         #.............#
         #.>...........#
+        #..........f..#
+        #.............#
+        #......b......#
         #.............#
         #.............#
         #.............#
         #.............#
+        #.....@.......#
         #.............#
         #.............#
         #.............#
-        #.............#
-        #.............#
-        #.............#
-        #..........@..#
-        ###########h###
+        ######1########
 
 [#]
 name = wall
@@ -29,12 +29,24 @@ tile = 0, 3
 name = leafyfloor
 tile = 2, 3
 
-[h]
+[b]
+name = bed
+tile = 0, 0
+sprite = bed.png
+
+[f]
+name = fridge
+tile = 0, 0
+sprite = fridge.png
+block = true
+
+[1]
 name = floor
 tile = 0, 3
 level = houses.map
 connect = metakey
 metakey = K_DOWN
+connectchar = H
 
 [@]
 name = player

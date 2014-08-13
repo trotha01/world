@@ -1,21 +1,21 @@
 [level]
 tileset = ground.png
 
-map =   ####hhh########
+map =   ####222########
         #.............#
         #.............#
         #,...@........#
         #.............#
-        #........s....#
         #.............#
         #.............#
         #.............#
         #.............#
-        #............##
+        #.............#
+        #.......s....##
         #............#.
         #...........##.
         #..........##..
-        ############...
+        ######h#####...
 
 [#]
 name = wall
@@ -34,8 +34,16 @@ tile = 2, 3
 name = floor
 tile = 0, 3
 connect = metakey
+metakey = K_DOWN
+level = house.map
+connectchar = 1
+
+[2]
+name = floor
+tile = 0, 3
+connect = metakey
 metakey = K_UP
-level = houses.map
+level = level2.map
 connectchar = 1
 
 [@]
@@ -51,4 +59,4 @@ sprite = skeleton.png
 block = true
 audio = true
 audioDirection = South
-speech = street_greeting
+speech = morning_greeting
