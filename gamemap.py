@@ -8,7 +8,6 @@ import importlib
 import sys
 sys.path.append('languages')
 
-DEFAULT_MAP = "level.map"
 
 # Dimensions of the map tiles
 MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
@@ -16,6 +15,8 @@ MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
 MAP_CACHE = tiles.TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
 # Directory of map files
 MAP_DIR = 'maps/'
+# Map to use if none specified
+DEFAULT_MAP = MAP_DIR + "level.map"
 # Walking Directions
 NORTH = 0
 EAST = 1
@@ -43,9 +44,9 @@ def change_coords(coords, direction):
 class Map(object):
     """ The state of the current map """
 
-    def __init__(self, language, mapfilename=DEFAULT_MAP):
+    def __init__(self, language, mapfile=DEFAULT_MAP):
         self.language = language # the language as a string
-        self.level = Level(language, mapfilename)
+        self.level = Level(language, mapfile)
 
         # Initialize sprites, shadows and overlays as their respective classes
         self.shadows = pygame.sprite.RenderUpdates()
@@ -54,7 +55,7 @@ class Map(object):
         self.background = None
         self.player = None
 
-        self.use_level(mapfilename)
+        self.use_level(mapfile)
 
     # def use_level(self, level_file, nextPlayerPos=(-1, -1)):
     def use_level(self, level_file, old_connect_tile=None):
@@ -156,29 +157,29 @@ class Map(object):
 class Level(object):
     """Load and store the map of the level, together with all the items."""
 
-    def __init__(self, language, mapfilename="level.map"):
+    def __init__(self, language, mapfile=DEFAULT_MAP):
         # 'language' is a module to import
-        self.lang    = importlib.import_module(language)
+        self.lang = importlib.import_module(language)
         self.tileset = ''
-        self.map     = []
-        self.items   = {} # Sprites (not walls), mapped to by x,y coords
-        self.key     = {}
-        self.width   = 0
-        self.height  = 0
+        self.map = []
+        self.items = {} # Sprites (not walls), mapped to by x,y coords
+        self.key = {}
+        self.width = 0
+        self.height = 0
         # Tiles that auto-transport player to new level
         self.autoleveltiles = {}
         # Tiles that transport player to new level on meta-key press (space)
         self.metaleveltiles = {}
-        self.audio_tiles    = {}
-        self.load_file(mapfilename)
+        self.audio_tiles = {}
+        self.load_file(mapfile)
 
-    def load_file(self, mapfilename="level.map"):
+    def load_file(self, mapfile):
         """Load the level from specified file."""
 
         parser = ConfigParser.ConfigParser()
-        parser.read(MAP_DIR + mapfilename)
+        parser.read(mapfile)
 	# get(section, option), returns value from 'option = value'
-        self.tileset = parser.get("level", "tileset") 
+        self.tileset = parser.get("level", "tileset")
         self.map = parser.get("level", "map").split("\n")
 
 	# Load section block descriptions into 'key' dictionary

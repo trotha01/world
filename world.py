@@ -15,7 +15,7 @@ import gamemap as gmap
 
 GAME_FRAMERATE = 70 # Frames per second
 SUPPORTED_LANGUAGES = ["Spanish", "French"]
-INITIAL_MAP = "house.map"
+INITIAL_MAP = gmap.MAP_DIR + "house.map"
 
 # TODO: remove function ?
 def parse_position(position):
@@ -104,7 +104,7 @@ class Game(object):
         """ Change level, and update background and player position """
 
         # self.map_state.use_level(level, new_player_pos)
-        self.map_state.use_level(level, from_tile)
+        self.map_state.use_level(gmap.MAP_DIR + level, from_tile)
         # Blit background and overlays on screen
         self.screen.blit(self.map_state.background, (0, 0))
         self.map_state.overlays.draw(self.screen)

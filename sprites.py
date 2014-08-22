@@ -4,7 +4,6 @@ import gamemap as gmap
 import tiles
 
 
-
 SPRITE_CACHE = tiles.TileCache()
 
 class SortedUpdates(pygame.sprite.RenderUpdates):
