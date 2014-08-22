@@ -127,12 +127,12 @@ class Map(object):
         self.background, overlays = self.level.render()
 
         # Add the overlays for the level map
-        twidth  = MAP_TILE_WIDTH
+        twidth = MAP_TILE_WIDTH
         theight = MAP_TILE_HEIGHT
         for (x, y), image in overlays.iteritems():
-            overlay       = pygame.sprite.Sprite(self.overlays)
+            overlay = pygame.sprite.Sprite(self.overlays)
             overlay.image = image
-            overlay.rect  = image.get_rect().move(x*twidth, y*theight - theight)
+            overlay.rect = image.get_rect().move(x*twidth, y*theight - theight)
 
     def clear_sprites(self, screen):
         """ Clears all the sprites from screen and updates them """
@@ -188,9 +188,10 @@ class Level(object):
                 # desc = map block info (name, tile, isplayer, doesblock)
                 desc = dict(parser.items(section))
                 self.key[section] = desc
-                self.key[section]['locations'] = [] # Coordinates that have this key
+                self.key[section]['locations'] = []
 
-        # Create item(sprite) tile list, connector tile lists, and audio tile list
+        # Create item(sprite) tile list, connector tile lists,
+        # and audio tile list
         self.width = len(self.map[0])
         self.height = len(self.map)
 
@@ -207,7 +208,7 @@ class Level(object):
                 # Store metaconnector tiles in a list
                 if self.is_metaconnector(x, y):
                     # Check if person connects to the side of the tile
-                    if('connectlocation' in self.key[tile]):
+                    if 'connectlocation' in self.key[tile]:
                         connect_pos = self.key[tile]['connectlocation']
                         connect_tile = change_coords((x, y), connect_pos)
                     else:
@@ -228,7 +229,7 @@ class Level(object):
         #    image: a Surface class
 	#    overlays: a dictionary (of walls that obscure things)
 
-        wall  = self.is_wall
+        wall = self.is_wall
         map_tiles = MAP_CACHE[self.tileset]
         surface_pos = (self.width*MAP_TILE_WIDTH, self.height*MAP_TILE_HEIGHT)
         image = pygame.Surface(surface_pos)
@@ -238,7 +239,8 @@ class Level(object):
             for map_x, tile_char in enumerate(line):
                 # Gets coords in image to use
                 if wall(map_x, map_y):
-                    img_coords = tiles.wall_img_coords(wall, (map_x, map_y), overlays, map_tiles)
+                    img_coords = tiles.wall_img_coords(wall, (map_x, map_y),
+                                                       overlays, map_tiles)
                 else:
                     try:
                         img_coords = self.key[tile_char]['tile'].split(',')
@@ -285,13 +287,13 @@ class Level(object):
         """Does tile connect to another level automatically?"""
 
         value = self.get_tile(tile_x, tile_y).get('connect')
-        return (value == 'auto')
+        return value == 'auto'
 
     def is_metaconnector(self, tile_x, tile_y):
         """Does tile connect to another level on meta-key press?"""
 
         value = self.get_tile(tile_x, tile_y).get('connect')
-        return (value == 'metakey')
+        return value == 'metakey'
 
     def is_audio(self, tile_x, tile_y):
         """Is this an audio tile?"""
@@ -308,9 +310,9 @@ if __name__ == "__main__":
 
     MAP = sys.argv[1]
 
-    SCREEN_WIDTH  = MAP_TILE_WIDTH*15
+    SCREEN_WIDTH = MAP_TILE_WIDTH*15
     SCREEN_HEIGHT = MAP_TILE_HEIGHT*15
-    LANGUAGE      = "spanish"
+    LANGUAGE = "spanish"
 
     pygame.init()
     pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

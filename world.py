@@ -139,8 +139,8 @@ class Game(object):
         for tile in self.map_state.level.audio_tiles:
             if self.map_state.player.pos == tile:
                 audio_file = self.map_state.level.audio_tiles[tile]['audiofile']
-                start     = self.map_state.level.audio_tiles[tile]['start']
-                length    = self.map_state.level.audio_tiles[tile]['length']
+                start = self.map_state.level.audio_tiles[tile]['start']
+                length = self.map_state.level.audio_tiles[tile]['length']
                 length_mili_secs = float(length) * 1000
 
                 pygame.mixer.music.load('sound/' + audio_file)
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     LANGUAGE = sys.argv[1].lower()
 
     # Make screen 15 tiles wide and 15 tiles high
-    SCREEN_WIDTH  = gmap.MAP_TILE_WIDTH*15
+    SCREEN_WIDTH = gmap.MAP_TILE_WIDTH*15
     SCREEN_HEIGHT = gmap.MAP_TILE_HEIGHT*15
 
     # Initialize and start the game!
