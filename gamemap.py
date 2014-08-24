@@ -116,11 +116,11 @@ class Map(object):
         if connects_by == 'auto':
             # Get current player coordinates
             x_coord, y_coord = self.player.pos
-            walking = self.player.walk_animation()
             # If not walking into a wall
             if not self.level.is_blocking(x_coord+DX[old_dir],
                                           y_coord+DY[old_dir]):
                 # Walk in specified direction
+                walking = self.player.walk()
                 self.player.animation = walking
 
         # Render the level map

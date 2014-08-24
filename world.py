@@ -56,20 +56,18 @@ class Game(object):
             # Set player direction
             self.map_state.player.direction = direction
 
-            # Walking animation and actual coord movement
-            # TODO: move under "if not"
-            walking = self.map_state.player.walk_animation()
 
             # If not walking into a wall
             if not self.map_state.level.is_blocking(x_coord+gmap.DX[direction],
                                                     y_coord+gmap.DY[direction]):
+                # Walking animation and actual coord movement
+                walking = self.map_state.player.walk()
                 # Walk in specified direction
                 self.map_state.player.animation = walking
 
             # Change level?
             self.auto_change_level()
 
-        # TODO: make case statement?
         if pressed(pg.K_UP):
             walk(gmap.NORTH)
         elif pressed(pg.K_DOWN):

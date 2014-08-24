@@ -40,7 +40,7 @@ class Sprite(pygame.sprite.Sprite):
             self.frames = frames
         self.image = self.frames[0][0]
         self.rect = self.image.get_rect()
-        self.animation = self.stand_animation()
+        self.animation = self.stand()
         self.pos = pos
         self.depth = 0
 
@@ -63,7 +63,7 @@ class Sprite(pygame.sprite.Sprite):
         self.rect.move_ip(dx, dy)
         self.depth = self.rect.midbottom[1]
 
-    def stand_animation(self):
+    def stand(self):
         """The default animation."""
 
         while True:
@@ -90,8 +90,8 @@ class Player(Sprite):
         self.animation = None
         self.image = self.frames[self.direction][0]
 
-    def walk_animation(self): #TODO: change name to 'walk'
-        """Animation for the player walking."""
+    def walk(self):
+        """Animation and movement for the player walking."""
 
         # This animation is hardcoded for 4 frames and 16x24 map tiles
         for frame in range(4):
