@@ -17,20 +17,6 @@ GAME_FRAMERATE = 70 # Frames per second
 SUPPORTED_LANGUAGES = ["Spanish", "French"]
 INITIAL_MAP = gmap.MAP_DIR + "house.map"
 
-# TODO: remove function ?
-def parse_position(position):
-    """ Convert position string "(x, y)" to a tuple (x, y) """
-    item = 0
-    items = []
-    items.append("")
-    for substr in position:
-        if substr == " ":
-            item += 1
-            items.append("")
-        items[item] += substr
-    return (str.strip(items[0]), str.strip(items[1]))
-
-
 class Game(object):
     """The main game object."""
 
