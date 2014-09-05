@@ -1,7 +1,8 @@
 """Sprite for animated items and base class for Player."""
 import pygame
-import gamemap as gmap
-import tiles
+
+from logic import tiles
+from logic import constants as const
 
 
 SPRITE_CACHE = tiles.TileCache()
@@ -86,7 +87,7 @@ class Player(Sprite):
     def __init__(self, pos=(1, 1)):
         self.frames = SPRITE_CACHE["player.png"]
         Sprite.__init__(self, pos)
-        self.direction = gmap.SOUTH
+        self.direction = const.SOUTH
         self.animation = None
         self.image = self.frames[self.direction][0]
 
@@ -97,9 +98,9 @@ class Player(Sprite):
         for frame in range(4):
             self.image = self.frames[self.direction][frame]
             yield None
-            self.move(3*gmap.DX[self.direction], 2*gmap.DY[self.direction])
+            self.move(3*const.DX[self.direction], 2*const.DY[self.direction])
             yield None
-            self.move(3*gmap.DX[self.direction], 2*gmap.DY[self.direction])
+            self.move(3*const.DX[self.direction], 2*const.DY[self.direction])
 
     def update(self, *args):
         """Run the current animation or just stand there if no animation set."""
@@ -111,5 +112,4 @@ class Player(Sprite):
                 self.animation.next()
             except StopIteration:
                 self.animation = None
-
 

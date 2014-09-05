@@ -8,7 +8,7 @@ import sys
 from . import tiles
 from . import sprites as spr
 from resources.languages import french
-from logic.constants import *
+from logic import constants as const
 
 sys.path.append('languages')
 
@@ -29,7 +29,7 @@ def change_coords(coords, direction):
 class Map(object):
     """ The state of the current map """
 
-    def __init__(self, language, mapfile=DEFAULT_MAP):
+    def __init__(self, language, mapfile=const.DEFAULT_MAP):
         self.language = language # the language as a string
         self.level = Level(language, mapfile)
 
@@ -101,8 +101,8 @@ class Map(object):
             # Get current player coordinates
             x_coord, y_coord = self.player.pos
             # If not walking into a wall
-            if not self.level.is_blocking(x_coord+DX[old_dir],
-                                          y_coord+DY[old_dir]):
+            if not self.level.is_blocking(x_coord+const.DX[old_dir],
+                                          y_coord+const.DY[old_dir]):
                 # Walk in specified direction
                 walking = self.player.walk()
                 self.player.animation = walking
@@ -111,8 +111,8 @@ class Map(object):
         self.background, overlays = self.level.render()
 
         # Add the overlays for the level map
-        twidth = MAP_TILE_WIDTH
-        theight = MAP_TILE_HEIGHT
+        twidth = const.MAP_TILE_WIDTH
+        theight = const.MAP_TILE_HEIGHT
         for (x, y), image in overlays.iteritems():
             overlay = pygame.sprite.Sprite(self.overlays)
             overlay.image = image
@@ -141,7 +141,7 @@ class Map(object):
 class Level(object):
     """Load and store the map of the level, together with all the items."""
 
-    def __init__(self, language, mapfile=DEFAULT_MAP):
+    def __init__(self, language, mapfile=const.DEFAULT_MAP):
         # 'language' is a module to import
         # self.lang = importlib.import_module("languages."+language,
         self.lang = french
@@ -215,8 +215,9 @@ class Level(object):
 	#    overlays: a dictionary (of walls that obscure things)
 
         wall = self.is_wall
-        map_tiles = MAP_CACHE[self.tileset]
-        surface_pos = (self.width*MAP_TILE_WIDTH, self.height*MAP_TILE_HEIGHT)
+        map_tiles = tiles.MAP_CACHE[self.tileset]
+        surface_pos = (self.width *const.MAP_TILE_WIDTH,
+                       self.height*const.MAP_TILE_HEIGHT)
         image = pygame.Surface(surface_pos)
         overlays = {}
 
@@ -235,7 +236,8 @@ class Level(object):
                         img_coords = tiles.GROUND_TILE
                 tile_image = map_tiles[img_coords[0]][img_coords[1]]
                 image.blit(tile_image,
-                            (map_x*MAP_TILE_WIDTH, map_y*MAP_TILE_HEIGHT))
+                            (map_x*const.MAP_TILE_WIDTH,
+                             map_y*const.MAP_TILE_HEIGHT))
         return image, overlays
 
     def get_tile(self, tile_x, tile_y):
@@ -295,12 +297,10 @@ if __name__ == "__main__":
 
     MAP = sys.argv[1]
 
-    SCREEN_WIDTH = MAP_TILE_WIDTH*15
-    SCREEN_HEIGHT = MAP_TILE_HEIGHT*15
     LANGUAGE = "spanish"
 
     pygame.init()
-    pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
 
     SCREEN = pygame.display.get_surface()
     MAP_STATE = Map(LANGUAGE, MAP)

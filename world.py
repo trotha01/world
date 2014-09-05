@@ -11,12 +11,11 @@ Some code was taken from:
 import sys
 import pygame
 import pygame.locals as pg
+
 from logic.gamemap import Map
-import logic.gamemap as gmap
+from logic import constants as const
 
 GAME_FRAMERATE = 70 # Frames per second
-SUPPORTED_LANGUAGES = ["Spanish", "French"]
-INITIAL_MAP = gmap.MAP_DIR + "house.map"
 
 class Game(object):
     """The main game object."""
@@ -59,8 +58,8 @@ class Game(object):
 
 
             # If not walking into a wall
-            if not self.map_state.level.is_blocking(x_coord+gmap.DX[direction],
-                                                    y_coord+gmap.DY[direction]):
+            if not self.map_state.level.is_blocking(x_coord+const.DX[direction],
+                                                    y_coord+const.DY[direction]):
                 # Walking animation and actual coord movement
                 walking = self.map_state.player.walk()
                 # Walk in specified direction
@@ -70,13 +69,13 @@ class Game(object):
             self.auto_change_level()
 
         if pressed(pg.K_UP):
-            walk(gmap.NORTH)
+            walk(const.NORTH)
         elif pressed(pg.K_DOWN):
-            walk(gmap.SOUTH)
+            walk(const.SOUTH)
         elif pressed(pg.K_LEFT):
-            walk(gmap.WEST)
+            walk(const.WEST)
         elif pressed(pg.K_RIGHT):
-            walk(gmap.EAST)
+            walk(const.EAST)
         # Possibly play audio
         if pressed(pg.K_SPACE):
             self.play_audio()
@@ -89,7 +88,7 @@ class Game(object):
         """ Change level, and update background and player position """
 
         # self.map_state.use_level(level, new_player_pos)
-        self.map_state.use_level(gmap.MAP_DIR + level, from_tile)
+        self.map_state.use_level(const.MAP_DIR + level, from_tile)
         # Blit background and overlays on screen
         self.screen.blit(self.map_state.background, (0, 0))
         self.map_state.overlays.draw(self.screen)
@@ -176,19 +175,15 @@ def use_error():
     print sys.argv[0] + " [language]"
     print
     print "language can be:"
-    print SUPPORTED_LANGUAGES
+    print const.SUPPORTED_LANGUAGES
     sys.exit(1)
 
 if __name__ == "__main__":
-    print sys.modules
     # Get language to use
     if len(sys.argv) < 2:
         use_error()
     LANGUAGE = sys.argv[1].lower()
 
-    # Make screen 15 tiles wide and 15 tiles high
-    SCREEN_WIDTH = gmap.MAP_TILE_WIDTH*15
-    SCREEN_HEIGHT = gmap.MAP_TILE_HEIGHT*15
-
     # Initialize and start the game!
-    Game(LANGUAGE, INITIAL_MAP, SCREEN_WIDTH, SCREEN_HEIGHT).main()
+    Game(LANGUAGE, const.INITIAL_MAP,
+            const.SCREEN_WIDTH, const.SCREEN_HEIGHT).main()

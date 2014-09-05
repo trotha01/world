@@ -2,10 +2,7 @@
 
 import pygame
 
-# Sprite height/width
-TILE_WIDTH = 32
-TILE_HEIGHT = 16
-IMAGE_DIR = 'resources/images/'
+from logic import constants as const
 
 GROUND_TILE = 0, 3
 
@@ -84,7 +81,7 @@ def load_tile_table(imagefilename, width, height):
     # Called by tilecacheInstance[file][width][height]
     """Load an image and split it into tiles."""
 
-    image = pygame.image.load(IMAGE_DIR + imagefilename).convert()
+    image = pygame.image.load(const.IMAGE_DIR + imagefilename).convert()
     image_width, image_height = image.get_size()
     tile_table = []
     for tile_x in range(0, image_width/width):
@@ -98,10 +95,10 @@ def load_tile_table(imagefilename, width, height):
 class TileCache(object):
     """Load the tilesets lazily into global cache"""
 
-    def __init__(self,  width=TILE_WIDTH, height=None):
-        self.width  = width
+    def __init__(self, width=const.TILE_WIDTH, height=None):
+        self.width = width
         self.height = height or width
-        self.cache  = {}
+        self.cache = {}
 
     def __getitem__(self, imagefilename):
         """Return a table of tiles, load it from disk if needed."""
@@ -123,3 +120,7 @@ class TileCache(object):
         pass
     def __len__(self, imagefilename):
         pass
+
+# Cache of map tiles
+MAP_CACHE = TileCache(const.MAP_TILE_WIDTH, const.MAP_TILE_HEIGHT)
+
