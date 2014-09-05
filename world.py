@@ -11,7 +11,8 @@ Some code was taken from:
 import sys
 import pygame
 import pygame.locals as pg
-import gamemap as gmap
+from logic.gamemap import Map
+import logic.gamemap as gmap
 
 GAME_FRAMERATE = 70 # Frames per second
 SUPPORTED_LANGUAGES = ["Spanish", "French"]
@@ -28,7 +29,7 @@ class Game(object):
         self.screen = pygame.display.get_surface()
         self.pressed_key = None
         self.game_over = False
-        self.map_state = gmap.Map(lang, initial_map)
+        self.map_state = Map(lang, initial_map)
 
     def control(self):
         """Handle the controls of the game."""
@@ -127,7 +128,7 @@ class Game(object):
                 length = self.map_state.level.audio_tiles[tile]['length']
                 length_mili_secs = float(length) * 1000
 
-                pygame.mixer.music.load('sound/' + audio_file)
+                pygame.mixer.music.load('resources/sound/' + audio_file)
                 pygame.mixer.music.play(0, float(start))
                 while pygame.mixer.music.get_pos() < length_mili_secs:
                     pygame.time.Clock().tick(10)
@@ -179,6 +180,7 @@ def use_error():
     sys.exit(1)
 
 if __name__ == "__main__":
+    print sys.modules
     # Get language to use
     if len(sys.argv) < 2:
         use_error()

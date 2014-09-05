@@ -2,30 +2,15 @@
 import ConfigParser
 import pygame
 import pygame.locals as pg
-import tiles
-import sprites as spr
-import importlib
+# import importlib
 import sys
+
+from . import tiles
+from . import sprites as spr
+from resources.languages import french
+from logic.constants import *
+
 sys.path.append('languages')
-
-
-# Dimensions of the map tiles
-MAP_TILE_WIDTH, MAP_TILE_HEIGHT = 24, 16
-# Cache of map tiles
-MAP_CACHE = tiles.TileCache(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)
-# Directory of map files
-MAP_DIR = 'maps/'
-# Map to use if none specified
-DEFAULT_MAP = MAP_DIR + "level.map"
-# Walking Directions
-NORTH = 0
-EAST = 1
-SOUTH = 2
-WEST = 3
-# Motion offsets for particular directions
-#     N  E  S   W
-DX = [0, 1, 0, -1] # Moves left and right
-DY = [-1, 0, 1, 0] # Moves up   and down
 
 def change_coords(coords, direction):
     """Change the coordinates North, East, South, or West."""
@@ -57,10 +42,9 @@ class Map(object):
 
         self.use_level(mapfile)
 
-    # def use_level(self, level_file, nextPlayerPos=(-1, -1)):
     def use_level(self, level_file, old_connect_tile=None):
         """Set the map level."""
-        new_level = Level(self.language, level_file) #TODO: rename to new_level
+        new_level = Level(self.language, level_file)
 
         new_pos = None
         old_pos = None
@@ -159,7 +143,8 @@ class Level(object):
 
     def __init__(self, language, mapfile=DEFAULT_MAP):
         # 'language' is a module to import
-        self.lang = importlib.import_module(language)
+        # self.lang = importlib.import_module("languages."+language,
+        self.lang = french
         self.tileset = ''
         self.map = []
         self.items = {} # Sprites (not walls), mapped to by x,y coords

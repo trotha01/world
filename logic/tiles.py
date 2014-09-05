@@ -3,9 +3,9 @@
 import pygame
 
 # Sprite height/width
-TILE_WIDTH  = 32
+TILE_WIDTH = 32
 TILE_HEIGHT = 16
-IMAGE_DIR = 'images/'
+IMAGE_DIR = 'resources/images/'
 
 GROUND_TILE = 0, 3
 

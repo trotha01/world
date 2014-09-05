@@ -9,7 +9,7 @@ sys.path.append('../languages')
 
 import pygame
 import pygame.locals as pg
-import gamemap as gmap
+from logic import gamemap as gmap
 
 def use_error():
     """ Prints error message if tool is used incorrectly """
